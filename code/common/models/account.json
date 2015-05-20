@@ -4,7 +4,27 @@
   "idInjection": true,
   "properties": {},
   "validations": [],
-  "relations": {},
+  "relations": {
+    "surveys" : {
+      "type": "referencesMany",
+      "model" : "SurveyOption",
+      "property": "surveyOptionList",
+      "options" : {
+        "validate": true,
+        "forceId": false
+      }
+    },
+    "questions" : {
+      "type": "referencesMany",
+      "model" : "Question",
+      "property": "questionsList",
+      "options" : {
+        "validate": true,
+        "forceId": false
+      }
+    }
+
+  },
   "acls": [],
   "methods": []
 }

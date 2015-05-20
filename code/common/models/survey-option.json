@@ -13,7 +13,13 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "survey" : {
+      "type": "belongsTo",
+      "model": "Survey",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": []
 }

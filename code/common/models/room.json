@@ -14,7 +14,19 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "questions": {
+      "type": "hasMany",
+      "model": "Question",
+      "foreignKey": "roomId"
+    },
+    "survey": {
+      "type": "hasMany",
+      "model": "Survey",
+      "foreignKey": "roomId"
+    }
+
+  },
   "acls": [],
   "methods": []
 }

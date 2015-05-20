@@ -10,7 +10,19 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "room" : {
+      "type" : "belongsTo",
+      "model" : "Room",
+      "foreignKey" : ""
+    },
+    "surveyOptions" : {
+      "type" : "hasMany",
+      "model" : "SurveyOption",
+      "foreignKey" : "surveyId"
+    }
+
+  },
   "acls": [],
   "methods": []
 }
