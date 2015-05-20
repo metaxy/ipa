@@ -1,0 +1,28 @@
+{
+  "name": "Survey",
+  "plural": "Surveys",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "properties": {
+    "title": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "room" : {
+      "type" : "belongsTo",
+      "model" : "Room",
+      "foreignKey" : ""
+    },
+    "surveyOptions" : {
+      "type" : "hasMany",
+      "model" : "SurveyOption",
+      "foreignKey" : "surveyId"
+    }
+
+  },
+  "acls": [],
+  "methods": []
+}

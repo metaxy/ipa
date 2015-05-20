@@ -1,0 +1,32 @@
+{
+  "name": "Room",
+  "plural": "Rooms",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "code": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "questions": {
+      "type": "hasMany",
+      "model": "Question",
+      "foreignKey": "roomId"
+    },
+    "survey": {
+      "type": "hasMany",
+      "model": "Survey",
+      "foreignKey": "roomId"
+    }
+
+  },
+  "acls": [],
+  "methods": []
+}
