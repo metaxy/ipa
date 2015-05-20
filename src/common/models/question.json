@@ -7,9 +7,6 @@
     "text": {
       "type": "string",
       "required": true
-    },
-    "votes": {
-      "type": "number"
     }
   },
   "validations": [],
@@ -18,6 +15,15 @@
       "type" : "belongsTo",
       "model" : "Room",
       "foreignKey" : ""
+    },
+    "users" : {
+      "type": "referencesMany",
+      "model" : "Account",
+      "property": "usersList",
+      "options" : {
+        "validate": true,
+        "forceId": false
+      }
     }
   },
   "acls": [],

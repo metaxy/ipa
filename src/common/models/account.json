@@ -13,17 +13,7 @@
         "validate": true,
         "forceId": false
       }
-    },
-    "questions" : {
-      "type": "referencesMany",
-      "model" : "Question",
-      "property": "questionsList",
-      "options" : {
-        "validate": true,
-        "forceId": false
-      }
     }
-
   },
   "acls": [],
   "methods": []
