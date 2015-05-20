@@ -1,0 +1,19 @@
+{
+  "name": "Question",
+  "plural": "Questions",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "properties": {
+    "text": {
+      "type": "string",
+      "required": true
+    },
+    "votes": {
+      "type": "number"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": []
+}
