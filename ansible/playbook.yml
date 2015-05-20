@@ -1,0 +1,36 @@
+---
+- hosts: all
+  tasks:
+    - name: ensure packages are installed and up to date
+      apt: pkg={{item}} state=latest
+      notify:
+      - restart postgresql
+      with_items:
+      - nodejs
+      - npm
+      - postgresql
+
+    - name: create nodejs symlink for debian/nodejs awkwardness
+      file: dest=/usr/bin/node state=link src=/usr/bin/nodejs
+
+    - name: ensure application group exists
+      group: name=hieronymus
+
+    - name: ensure application user exists
+      user: name=hieronymus group=hieronymus
+
+    - name: ensure application directory exists
+      file: path=/var/lib/hieronymus state=directory owner=hieronymus group=hieronymus mode=0640
+
+    - name: copy local source tree
+      synchronize: src=../src dest=/var/lib/hieronymus rsync_path="sudo rsync"
+
+    - name: install npm requirements
+      npm: name={{item}} path=/var/lib/hieronymus
+      with_items:
+      - strongloop
+      - socket.io
+
+  handlers:
+    - name: restart postgresql
+      service: name=postgresql state=restarted
