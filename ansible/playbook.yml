@@ -9,6 +9,7 @@
       - nodejs
       - npm
       - postgresql
+      - nginx
 
     - name: create nodejs symlink for debian/nodejs awkwardness
       file: dest=/usr/bin/node state=link src=/usr/bin/nodejs
@@ -20,17 +21,57 @@
       user: name=hieronymus group=hieronymus
 
     - name: ensure application directory exists
-      file: path=/var/lib/hieronymus state=directory owner=hieronymus group=hieronymus mode=0640
+      file: path=/var/lib/hieronymus state=directory owner=hieronymus group=hieronymus mode=0740
 
     - name: copy local source tree
-      synchronize: src=../src dest=/var/lib/hieronymus rsync_path="sudo rsync"
+      synchronize: src=../src/ dest=/var/lib/hieronymus/ rsync_path="sudo rsync"
+      notify:
+      - restart app
 
     - name: install npm requirements
       npm: name={{item}} path=/var/lib/hieronymus
       with_items:
       - strongloop
+      - loopback
+      - loopback-boot
+      - compression
+      - errorhandler
       - socket.io
+
+    - name: install app upstart script
+      copy: src=target/hieronymus-upstart.conf dest=/etc/init/hieronymus.conf mode=0644 owner=root group=root
+      notify:
+      - restart app
+
+    - name: install nginx config
+      copy: src=target/nginx-node.conf dest=/etc/nginx/sites-available/default mode=0644 owner=root group=root
+      notify:
+      - restart nginx
+
+    - name: ensure postgresql starts on boot
+      service: name=postgresql enabled=yes
+      notify:
+      - restart postgresql
+
+    - name: ensure nginx starts on boot
+      service: name=nginx enabled=yes
+      notify:
+      - restart nginx
+
+    - name: ensure app starts on boot
+      service: name=hieronymus enabled=yes
+      notify:
+      - restart app
 
   handlers:
     - name: restart postgresql
       service: name=postgresql state=restarted
+
+    - name: restart nginx
+      service: name=nginx state=restarted
+
+    - name: restart app
+      service: name=hieronymus state=restarted
+
+    - name: sync back
+      synchronize: dest=../src src=/var/lib/hieronymus mode=pull rsync_path="sudo rsync"
