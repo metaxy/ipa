@@ -1,3 +1,4 @@
 .vagrant
 .*.swo
 .*.swp
+src/server/venv

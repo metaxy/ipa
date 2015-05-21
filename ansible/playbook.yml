@@ -6,13 +6,16 @@
       notify:
       - restart postgresql
       with_items:
-      - nodejs
-      - npm
       - postgresql
       - nginx
-
-    - name: create nodejs symlink for debian/nodejs awkwardness
-      file: dest=/usr/bin/node state=link src=/usr/bin/nodejs
+      - uwsgi
+      - uwsgi-plugin-python3
+      - python3
+      - python3-flask
+      - python3-flask-sqlalchemy
+      - python3-requests
+      - python-psycopg2
+      - python3-psycopg2
 
     - name: ensure application group exists
       group: name=hieronymus
@@ -28,20 +31,18 @@
       notify:
       - restart app
 
-    - name: install npm requirements
-      npm: name={{item}} path=/var/lib/hieronymus
-      with_items:
-      - strongloop
-      - loopback
-      - loopback-boot
-      - compression
-      - errorhandler
-      - socket.io
+    - name: install uwsgi app config
+      copy: src=target/hieronymus-uwsgi.ini dest=/etc/uwsgi/hieronymus.ini mode=0644 owner=root group=root
+      notify:
+      - restart app
 
-    - name: install app upstart script
+    - name: install uwsgi app upstart script
       copy: src=target/hieronymus-upstart.conf dest=/etc/init/hieronymus.conf mode=0644 owner=root group=root
       notify:
       - restart app
+
+    - name: create app uwsgi socket dir
+      file: path=/run/uwsgi/hieronymus state=directory owner=www-data group=www-data mode=0740
 
     - name: install nginx config
       copy: src=target/nginx-node.conf dest=/etc/nginx/sites-available/default mode=0644 owner=root group=root
@@ -58,10 +59,14 @@
       notify:
       - restart nginx
 
+    - name: initialize app db
+      command: python3 /var/lib/hieronymus/server/server.py --create-db
+
     - name: ensure app starts on boot
       service: name=hieronymus enabled=yes
-      notify:
-      - restart app
+
+    - name: ensure app is running
+      service: name=hieronymus state=running
 
   handlers:
     - name: restart postgresql
@@ -75,3 +80,14 @@
 
     - name: sync back
       synchronize: dest=../src src=/var/lib/hieronymus mode=pull rsync_path="sudo rsync"
+
+- hosts: all
+  sudo: yes
+  sudo_user: postgres
+  tasks:
+    - name: create app db
+      postgresql_db: name=hieronymus
+
+    - name: create abb db user
+      postgresql_user: db=hieronymus name=hieronymus password=2dS3v5l6oaG2RpEne1CH7WT9UyEwe5nk
+

@@ -1,0 +1,76 @@
+<!doctype html>
+<title>{{room.name}}</title>
+<div class=page>
+    <div class=surveys>
+        <h2>Polls</h2>
+        {% for sv in surveys %}
+        <div class=poll>
+            <h4>{{sv.title}}</h4>
+            {% if sv.closed %}
+            <div class=results>
+                {% for opt,num in sv.count_votes() %}
+                <div class=result>
+                    <span class=optnum>{{loop.index}}</span>
+                    <span class=text>{{opt}}</span>
+                    <span class=votes>{{num}}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class=pollopts>
+                {% if is_lecturer %}
+                <form action={{url_for('close', room_name=room.name, survey_id=sv.id)}} method=POST>
+                    <input type=submit value=Close></input>
+                </form>
+                {% endif %}
+                {% for opt in sv.options %}
+                <div class=opt>
+                    <div class=option>{{opt}}</div>
+                    <form action={{url_for('vote', room_name=room.name, survey_id=sv.id)}} method=POST>
+                        <input type=hidden name=val value={{loop.index}}></input>
+                        <input type=submit value=Vote></input>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% if is_lecturer %}
+        <div class=newpoll>
+            <h3>Create new poll</h3>
+            <form action={{url_for('new_survey', room_name=room.name)}} method=POST>
+                <label for=title>Title</label><input type=text name=title></input>
+                {% for i in range(max_opts) %}
+                <label for=title>Option {{i+1}}</label><input type=text name=option{{i}}></input>
+                {% endfor %}
+                <input type=submit value=Create></input>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    <div class=questionsc>
+        <h2>Questions</h2>
+        {% for q in questions %}
+        <div class=question>
+            <span class=text>{{q.total_votes()}}</span>
+            <span class=text>{{q.title}}</span>
+            {% if not is_lecturer %}
+            <form action={{url_for('vote', room_name=room.name, survey_id=q.id)}} method=POST>
+                <input type=hidden name=val value=0></input>
+                <input type=submit value=Vote></input>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% if not is_lecturer %}
+        <div class=newpoll>
+            <h3>Ask a question</h3>
+            <form action={{url_for('ask', room_name=room.name)}} method=POST>
+                <input type=text name=question></input>
+                <input type=submit value=Ask></input>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
