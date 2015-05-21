@@ -1,0 +1,17 @@
+Pflichtenheft
+
+Inhaltsverzeichnis
+
+Einleitung
+Konzept und Rahmenbedingungen
+	Ziel des Anbieters
+	Ziele und Nutzen des Anwenders
+	Benutzer/Zielgruppe
+	Systemvoraussetzungen
+Beschreibung der Anforderungen
+	Anforderung n
+		Beschreibung
+		Wechselwirkungen
+		Risiken
+		Vergleich mit bestehenden Lösungen
+		Grobschätzung des Aufwands
