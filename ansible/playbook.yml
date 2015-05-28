@@ -1,8 +1,7 @@
----
 - hosts: all
   tasks:
     - name: ensure packages are installed and up to date
-      apt: pkg={{item}} state=latest
+      apt: pkg={{item}} state=latest update_cache=yes
       notify:
       - restart postgresql
       with_items:
@@ -58,16 +57,6 @@
       service: name=nginx enabled=yes
       notify:
       - restart nginx
-
-    - name: initialize app db
-      command: python3 /var/lib/hieronymus/server/server.py --create-db
-
-    - name: ensure app starts on boot
-      service: name=hieronymus enabled=yes
-
-    - name: ensure app is running
-      service: name=hieronymus state=running
-
   handlers:
     - name: restart postgresql
       service: name=postgresql state=restarted
@@ -81,6 +70,7 @@
     - name: sync back
       synchronize: dest=../src src=/var/lib/hieronymus mode=pull rsync_path="sudo rsync"
 
+
 - hosts: all
   sudo: yes
   sudo_user: postgres
@@ -91,3 +81,13 @@
     - name: create abb db user
       postgresql_user: db=hieronymus name=hieronymus password=2dS3v5l6oaG2RpEne1CH7WT9UyEwe5nk
 
+- hosts: all
+  tasks:
+    - name: initialize app db
+      command: python3 /var/lib/hieronymus/server/server.py --create-db
+
+    - name: ensure app starts on boot
+      service: name=hieronymus enabled=yes
+
+    - name: ensure app is running
+      service: name=hieronymus state=running
