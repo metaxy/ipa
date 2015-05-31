@@ -1,12 +1,12 @@
 \documentclass[german,a4paper]{beamer}
 \usepackage[ngerman]{babel}
-\usetheme{Warsaw}  %% Themenwahl
+\usetheme{Warsaw}  
 \usepackage{beamerprosper} 
 \usepackage{amsmath}
 \usepackage{colortbl}
 \usepackage{graphicx}
 
-\title{IPA 1. Meilstein Präsentation}
+\title{IPA 1. Meilstein Pr\"{a}sentation}
 \author{Marius Oppolzer \and Matthieu Grillere}
 \date{\today}
  
@@ -23,9 +23,9 @@
 \frametitle{Einf\"{u}rung}
 \begin{itemize}
   \item 
-  Software für interaktive Vorträge
+  Software f\"{u}r interaktive Vortr\"{a}ge
   \item
-  Großveranstaltungen ungefähr 1000 Teilnehmer
+  Gro{\ss}veranstaltungen ungef\"{a}hr 1000 Teilnehmer
   \item
   online Kommunikation
   \item
@@ -72,11 +72,11 @@
   \item{}
   Dozent kann Veranstaltung leiten oder teilnehmen
   \item{}
-  1 Administrator im System 
+  Administrator im System kann Rollen und Konten verwalten
 \end{itemize}
 \end{frame}
 
-\section{Funktionsbeschreibung}
+\section{Funktionen und Rechte}
 \subsection{Allgemein}
 \begin{frame} 
 \frametitle{Allgemeine Funktionen}
@@ -186,9 +186,9 @@
 \end{itemize}
 \end{frame}
 
-\section{Rollen und Rechte}
+\subsection{Zusammenfassung}
 \begin{frame} 
-\frametitle{\"{U}bersicht von Rollen und Rechten}
+\frametitle{\"{U}bersicht \"{u}ber Rollen und Rechten}
 \resizebox{11,5cm}{!} {
   \begin{tabular}{c<{\onslide<2->} c<{\onslide<3->}c<{\onslide}c}
   \textbf{Teilnehmer} & \textbf{Dozent} & \textbf{Administrator} \\
@@ -208,21 +208,66 @@
 \subsection{Aktivit\"{a}tsdiagramm}
 \begin{frame}
 \frametitle{Veranstaltung verwalten}
-\includegraphics[width=1.0\textwidth]{ad_VA_verwalten.jpg}
+\includegraphics[width=1.0\textwidth]{./diagrams/activity/ad_SubVeranstaltungVerwalten.jpg}
 \end{frame}
 
 \begin{frame}
 \frametitle{Dozent Diagramm}
-\includegraphics[width=1.0\textwidth]{AD_Admin.jpg}
+\includegraphics[width=1.0\textwidth]{./diagrams/activity/AD_MainAdmin.jpg}
 \end{frame}
 
 \subsection{Datenbank}
 \begin{frame}
 \frametitle{E-R Diagramm}
-\includegraphics[width=1.0\textwidth]{er-diagram.png}
+\includegraphics[width=0.95\textwidth]{./diagrams/er/er_diagram.png}
 \end{frame}
 
 \section{Mockup}
 \subsection{Android App}
+\begin{frame}
+\frametitle{Start Bildschirm}
+\begin{figure}
+  \centering
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_login.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Teilnehmer, Dozent unt Admin Veranstaltungs\"{u}bersicht}
+\begin{tabular}{ccc}
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_welcome_teilnehmer.png}
+  &
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_welcome_dozent.png}
+  &
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_welcome_admin.png}
+\end{tabular}
+\end{frame}
+
+\begin{frame}
+\frametitle{Teilnehmer, Dozent unt Admin Hauptansicht}
+\begin{tabular}{ccc}
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_main_teilnehmer.png}
+  &
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_main_dozent.png}
+  &
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_main_adminmode.png}
+\end{tabular}
+\end{frame}
+
+\begin{frame}
+\frametitle{Weitere Beispiele}
+\begin{tabular}{ccc}
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_rolle_erstellen.png}
+  &
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_survey_create.png}
+  &
+  \includegraphics[height=0.75\textheight]{./mockups/mockup_survey_answer.png}
+\end{tabular}
+\end{frame}
+
 \subsection{Desktop Version}
+\begin{frame}
+\frametitle{Desktop Version}
+ Live Demo !
+\end{frame}
 \end{document}
