@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+    <title></title>
+
+
+</head>
+<body>
+<div class="col-md-12">
+    <div class="container">
+        <h1>LiFi | Live Feedback </h1>
+        <div class="col-md-12 lectureWrapper">
+            <h3>Veranstaltung erstellen</h3>
+            <input type="text" class="in inTxt" placeholder="Name">
+            <input type="text" class="in inTxt" placeholder="Kennwort">
+            <button type="submit" class="in button">erstellen</button>
+            <h3 style="margin-top: 30px">Veranstaltung beitreten</h3>
+            <input type="text" class="in inTxt inLine" placeholder="Veranstaltungs Password">
+            <button type="submit" name="lecturePassword" class="in button inLine" onclick="window.location.href ='adminInLecture.html'">beitreten</button>
+            <hr>
+            <h3>Existierende Veranstaltungen</h3>
+            <select name="existingLectures">
+                <option>lorem</option>
+                <option>ipsum</option>
+                <option>sit</option>
+            </select>
+            <button type="button" class="in button">beenden</button>
+        </div>
+        <div class="col-md-12">
+            <hr>
+            <h3>Rollen</h3>
+            <input type="text" class="in inTxt" placeholder="Rollenname">
+            <button type="button" class="in button">anlegen</button>
+            <h3 style="margin-top: 50px">Existierende Rollen</h3>
+            <select name="existingRoles">
+                <option>admin</option>
+                <option>dozent</option>
+                <option>teilnehmer</option>
+            </select>
+            <button type="button" class="in button inLine" >modifizieren</button>
+            <button type="button" class="in button inLine" >zuweisen</button>
+            <button type="button" class="in" >löschen</button>
+            <div class="col-md-12">
+                <input type="text" class="in inTxt" name="accountName" placeholder="Accountname">
+                <button type="button" class="in" style="background-color: #a02935" onclick="window.location.href = 'index.html'">löschen</button>
+                <button type="button" class="in button" onclick="window.location.href = 'index.html'">erstellen</button>
+                <br>
+                <button type="button" class="in button" onclick="window.location.href = 'index.html'">abmelden</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(function() {
+        $(".star").click(function(){
+            $(this).attr("src","assets/icons/star-48.png")
+        });
+    });
+    function setDiagram() {
+        drawBarHor("diagramhor","1","bar_pos",55,"Nein","beschr");
+        drawBarHor("diagramhor","1","bar_pos",45,"Ja","beschr");
+        drawBarVer("diagramver","1","bar_pos_ver",48,"Nein","beschr");
+        drawBarVer("diagramver","1","bar_neg_ver",80,"Ja","beschr");
+        drawBarVer("diagramver","1","bar_pos_ver",59,"vielleicht","beschr");
+        drawBarVer("diagramver","1","bar_neg_ver",17,"kein plan","beschr");
+
+    }
+    function drawBarVer(targetId,barId,styleClass,barValue,beschr,beschrClass) {
+        document.getElementById(targetId).innerHTML += '<div class="complBar"><div class="dia_container"><div id="'+barId+'" class="'+styleClass+'" style="height: '+barValue+'%;bottom: -'+(100-barValue)+'%;">'+barValue+' %</div></div>'+
+        '<div class="'+beschrClass+'">'+beschr+'</div></div>';
+    }
+    function drawBarHor(targetId,barId,styleClass,barValue,beschr,beschrClass) {
+        document.getElementById(targetId).innerHTML += '<div id="'+barId+'" class="'+styleClass+'" style="width: '+barValue+'%;">'+barValue+' %</div>'+
+        '<div class="'+beschrClass+'">'+beschr+'</div>';
+    }
+
+    window.onload = setDiagram;
+</script>
+
+
+</body>
+</html>

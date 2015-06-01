@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+    <title></title>
+
+
+</head>
+<body>
+<div class="col-md-12">
+    <div class="container">
+        <h1>LiFi | Live Feedback </h1>
+        <h3 style="font-weight: 200"> super Veranstaltungsname</h3>
+        <div class="col-md-12 surveryWrapper">
+            <h3>Umfragen</h3>
+            <input type="text" class="in inTxt serveryLong" name="survery" placeholder="Frage ...?">
+            <input type="text" class="in inTxt inLine" name="survery" placeholder="a">
+            <input type="text" class="in inTxt inLine" name="survery" placeholder="b">
+            <input type="text" class="in inTxt inLine" name="survery" placeholder="c">
+            <input type="text" class="in inTxt inLine" name="survery" placeholder="d">
+            <input type="text" class="in inTxt inLine" name="survery" placeholder="e">
+            <input type="text" class="in inTxt inLine" name="survery" placeholder="f">
+            <button type="submit" class="in button" name="newSurvery">erstellen</button>
+            <hr>
+            <h3>Existierende Umfragen</h3>
+            <select name="existingSurvery">
+                <option>Lorem (aktiv)</option>
+                <option>Ipsum</option>
+                <option>Sit</option>
+            </select>
+            <button type="button" class="in button inLine">freigeben</button>
+            <button type="button" class="in inLine">speichern</button><br>
+            <button type="button" class="in inLine">auswerten</button>
+            <button type="button" class="in button inLine">beenden</button>
+
+            <hr>
+            <div class="col-md-12">
+                <h3>Beispiel Diagramm</h3>
+                <div id="diagramver"></div>
+            </div>
+        </div>
+            <h3>Geschwindigkeit</h3>
+            <div id="diagramhor"></div>
+            <button type="button" class="in button inLine">schneller</button>
+            <button type="button" class="in button inLine">langsamer</button>
+        <div class="col-md-12">
+            <h3>Fragen</h3>
+            <input type="text" class="in inTxt frage" name="question" placeholder="was verstehst du nicht?">
+            <button type="button" class="in frageButton">absenden</button>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star1">
+                <img src="assets/icons/cancel-50.png" class="delete" id="delete1">
+                <p>
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star2">
+                <img src="assets/icons/cancel-50.png" class="delete" id="delete2">
+                <p>
+                    Lorem  sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod dolor sit  tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star3">
+                <img src="assets/icons/cancel-50.png" class="delete" id="delete3">
+                <p>
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star4">
+                <img src="assets/icons/cancel-50.png" class="delete" id="delete4">
+                <p>
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star5">
+                <img src="assets/icons/cancel-50.png" class="delete" id="delete5">
+                <p>
+                    Lorem  sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod dolor sit  tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star6">
+                <img src="assets/icons/cancel-50.png" class="delete" id="delete6">
+                <p>
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor ??
+                </p>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <hr>
+            <h3> Was ist 2^9 <img src="assets/icons/question_mark-48.png" alt="questionmark"></h3>
+            <ul class="answerList">
+                <li class="col-md-6 answerFirst">
+                    <p>256</p>
+                </li>
+                <li class="col-md-6 answerSecond">
+                    <p>1024</p>
+                </li>
+                <li class="col-md-6 answerThree">
+                    <p>512</p>
+                </li>
+                <li class="col-md-6">
+                    <p>2048</p>
+                </li>
+            </ul>
+        </div>
+        <button type="button" class="in button" onclick="window.location.href = 'index.html'">Veranstaltung beenden</button>
+    </div>
+</div>
+
+
+<script>
+    $(function() {
+        $(".star").click(function(){
+            $(this).attr("src","assets/icons/star-48.png")
+        });
+    });
+    function setDiagram() {
+        drawBarHor("diagramhor","1","bar_pos",55,"Nein","beschr");
+        drawBarHor("diagramhor","1","bar_pos",45,"Ja","beschr");
+        drawBarVer("diagramver","3","bar_pos_ver",48,"Nein","beschr");
+        drawBarVer("diagramver","4","bar_neg_ver",80,"Ja","beschr");
+        drawBarVer("diagramver","5","bar_pos_ver",59,"vielleicht","beschr");
+        drawBarVer("diagramver","6","bar_neg_ver",17,"kein plan","beschr");
+
+    }
+    function drawBarVer(targetId,barId,styleClass,barValue,beschr,beschrClass) {
+        document.getElementById(targetId).innerHTML += '<div class="complBar"><div class="dia_container"><div id="'+barId+'" class="'+styleClass+'" style="height: '+barValue+'%;bottom: -'+(100-barValue)+'%;">'+barValue+' %</div></div>'+
+        '<div class="'+beschrClass+'">'+beschr+'</div></div>';
+    }
+    function drawBarHor(targetId,barId,styleClass,barValue,beschr,beschrClass) {
+        document.getElementById(targetId).innerHTML += '<div id="'+barId+'" class="'+styleClass+'" style="width: '+barValue+'%;">'+barValue+' %</div>'+
+        '<div class="'+beschrClass+'">'+beschr+'</div>';
+    }
+
+    window.onload = setDiagram;
+</script>
+
+
+</body>
+</html>

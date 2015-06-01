@@ -1,0 +1,294 @@
+/*
+
++++++LiFi Project main styles++++++
+
+
+*/
+
+
+*{
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+h1 {
+    text-align: center;
+    font-weight: 100;
+    font-size: 80px;
+    margin:  30px 20px 100px;
+}
+
+h3 {
+    margin: 5px 0 40px 0;
+    font-size: 200%;
+    font-weight: 200;
+}
+body {
+    background-color: #f0f0f0;
+    color: #777;
+    font-weight: 200;
+    font-size: 17px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+ul {
+    list-style: none;
+}
+
+select {
+    width: 50%;
+    height: 30px;
+    display: block;
+    margin: 10px auto;
+}
+
+.inLine {
+    display: inline-block !important;
+
+}
+
+@media (max-width: 991px) {
+    h1 {
+        font-size: 50px;
+    }
+
+    #diagramver {
+        width: 100% !important;
+    }
+
+    .answerList li {
+        border-bottom: 1px solid #ccc;
+    }
+}
+
+
+@media (min-width: 992px) {
+    .answerFirst {
+        border-right: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .answerSecond {
+        border-bottom: 1px solid #ccc;
+    }
+
+    .answerThree {
+        border-right: 1px solid #ccc;
+    }
+
+}
+
+.col-md-12 {
+    margin: 30px 0;
+}
+
+.container {
+    background-color: #fff;
+    min-height: 500px;
+    border-bottom: 3px solid #204d74;
+    box-shadow: 0 0  30px #fff;
+    text-align: center;
+    margin-bottom: 100px;
+}
+.in {
+    display: block;
+    border-radius: 7px;
+    padding: 5px;
+    margin: 5px auto;
+    height: 50px;
+    min-width: 250px;
+    width: 30%;
+    max-width: 450px;
+    color: #fff;
+    font-size: 17px;
+}
+
+.inTxt {
+    padding: 5px 10px;
+    color: #204d74;
+    border: 2px solid #f0f0f0;
+}
+
+.inTxt:hover {
+    border-color: #ccc;
+    transition: 1s;
+    -moz-transition: 1s;
+    -webkit-transition: 1s;
+    -o-transition: 1s;
+}
+
+.button {
+    background-color: #204d74;
+}
+
+.button:hover {
+    background-color: rgba(32, 77, 116, 0.81);
+    transition: 0.5s;
+    -moz-transition: 0.5s;
+    -webkit-transition: 0.5s;
+    -o-transition: 0.5s;
+}
+
+.speedWrapper {
+    margin: 0 auto;
+    max-width: 1000px;
+    height: auto;
+}
+
+
+.frage {
+    width: 100%;
+}
+
+.frageButton {
+    background-color: #5dc86a;
+
+}
+
+.frageButton:hover {
+    background-color: rgba(93, 200, 106, 0.8);
+    transition: 0.5s;
+    -moz-transition: 0.5s;
+    -webkit-transition: 0.5s;
+    -o-transition: 0.5s;
+}
+
+.frageButton:active {
+    background-color: #ccc;
+    transition: 0.1s;
+    -moz-transition: 0.1s;
+    -webkit-transition: 0.1s;
+    -o-transition: 0.1s;
+}
+
+.questionBlock {
+    border-left: 3px solid #d86f31;
+    border-right: 3px solid #fff;
+    margin: 10px;
+}
+
+.questionBlock:hover {
+    border-right: 3px solid #d86f31;
+}
+
+.questionBlock p {
+    text-align: left;
+    font-size: 20px;
+    padding: 10px;
+
+}
+
+.star {
+    float: right;
+    margin-left: 20px;
+}
+
+.delete {
+    float: left;
+    margin-right: 20px;
+    width: 32px;
+    height: 32px;
+}
+
+.delete:hover {
+    cursor: pointer;
+}
+.star:hover {
+    cursor: pointer;
+}
+
+.answerList li {
+    padding: 50px;
+}
+
+.answerList li:hover {
+    background-color: rgba(111, 243, 131, 0.1);
+    cursor: pointer;
+
+
+}
+
+
+/***************
+    Diagramm
+***************/
+
+#diagramhor {
+    width: 100%;
+    padding: 5px;
+    display: block;
+}
+
+#diagramver {
+    display: block;
+    margin: 10px auto;
+    height: 500px;
+    width: 60%;
+
+}
+
+.dia_container {
+    height: 500px;
+    width: 60px;
+    display: block;
+    text-align: center;
+}
+
+.bar_pos {
+    height: 45px;
+    background-color: #f0f0f0;
+    color: #777;
+    text-align: center;
+    display: inline-block;
+    float: left;
+    font-size: 16pt;
+    line-height: 2;
+}
+
+
+.bar_pos_ver {
+    width: 60px;
+    background-color: #204d74;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center;
+    display: block;
+    font-size: 8pt;
+    position: relative;
+}
+
+.bar_neg_ver {
+    width: 60px;
+    background-color: #ccc;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center;
+    display: block;
+    font-size: 8pt;
+    position: relative;
+}
+
+.beschr {
+    width: 60px;
+    display: block;
+    margin-bottom: 10px;
+    font-size: 12pt;
+    color: #333;
+    font-weight: 300;
+}
+
+.complBar {
+    width: 60px;
+    float: left;
+    margin-right: 5px;
+}
+
+
+.surveryWrapper {
+    margin-bottom: 50px;
+}
+
+.serveryLong {
+    width: 100%;
+}

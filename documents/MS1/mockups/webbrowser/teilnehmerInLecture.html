@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+    <title></title>
+
+
+</head>
+<body>
+<div class="col-md-12">
+    <div class="container">
+        <h1>LiFi | Live Feedback </h1>
+        <h3 style="font-weight: 200"> super Veranstaltungsname</h3>
+        <div class="speedWrapper">
+            <h3 style="float: left;display: block">Geschwindigkeit</h3>
+            <button type="button" class="in button inLine">schneller</button>
+            <button type="button" class="in button inLine">langsamer</button>
+            <hr>
+        </div>
+        <div class="col-md-12">
+            <h3>Fragen</h3>
+            <input type="text" class="in inTxt frage" name="question" placeholder="was verstehst du nicht?">
+            <button type="button" class="in frageButton">absenden</button>
+            <button type="button" class="in button">alle Fragen anzeigen</button>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star1">
+                <p>
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star2">
+                <p>
+                    Lorem  sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod dolor sit  tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star3">
+                <p>
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star4">
+                <p>
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star5">
+                <p>
+                    Lorem  sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod dolor sit  tempor ??
+                </p>
+            </div>
+            <div class="col-md-12 questionBlock">
+                <img src="assets/icons/star-50.png" class="star" id="star6">
+                <p>
+                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor ??
+                </p>
+            </div>
+        </div>
+        <button type="button" class="in button" onclick="window.location.href ='teilnehmerDefault.html'">Veranstaltung verlassen</button>
+    </div>
+</div>
+
+
+<script>
+    $(function() {
+        $(".star").click(function(){
+            $(this).attr("src","assets/icons/star-48.png")
+        });
+    });
+    function setDiagram() {
+        drawBarHor("diagramhor","1","bar_pos",55,"Nein","beschr");
+        drawBarHor("diagramhor","1","bar_pos",45,"Ja","beschr");
+        drawBarVer("diagramver","1","bar_pos_ver",48,"Nein","beschr");
+        drawBarVer("diagramver","1","bar_neg_ver",80,"Ja","beschr");
+        drawBarVer("diagramver","1","bar_pos_ver",59,"vielleicht","beschr");
+        drawBarVer("diagramver","1","bar_neg_ver",17,"kein plan","beschr");
+
+    }
+    function drawBarVer(targetId,barId,styleClass,barValue,beschr,beschrClass) {
+        document.getElementById(targetId).innerHTML += '<div class="complBar"><div class="dia_container"><div id="'+barId+'" class="'+styleClass+'" style="height: '+barValue+'%;bottom: -'+(100-barValue)+'%;">'+barValue+' %</div></div>'+
+        '<div class="'+beschrClass+'">'+beschr+'</div></div>';
+    }
+    function drawBarHor(targetId,barId,styleClass,barValue,beschr,beschrClass) {
+        document.getElementById(targetId).innerHTML += '<div id="'+barId+'" class="'+styleClass+'" style="width: '+barValue+'%;">'+barValue+' %</div>'+
+        '<div class="'+beschrClass+'">'+beschr+'</div>';
+    }
+
+    window.onload = setDiagram;
+</script>
+
+
+</body>
+</html>
