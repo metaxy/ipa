@@ -59,7 +59,7 @@
       - restart nginx
   handlers:
     - name: restart postgresql
-      service: name=postgresql state=restarted
+      debug: foo
 
     - name: restart nginx
       service: name=nginx state=restarted
@@ -70,11 +70,15 @@
     - name: sync back
       synchronize: dest=../src src=/var/lib/hieronymus mode=pull rsync_path="sudo rsync"
 
-
 - hosts: all
   sudo: yes
   sudo_user: postgres
   tasks:
+    - name: create postgresql cluster
+      shell: pg_createcluster --start 9.3 main
+      args:
+        creates: /var/lib/postgresql/9.3/main
+
     - name: create app db
       postgresql_db: name=hieronymus
 
