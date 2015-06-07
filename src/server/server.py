@@ -76,6 +76,17 @@ def login():
 def index():
     return 'It works!'
 
+@app.route('/create_room', methods=['GET', 'POST'])
+@auth
+def create_room():
+    if request.method == 'POST':
+        room = Room(request.form['name'], session['uid'], request.form['passkey'])
+        db.session.add(room)
+        db.session.commit()
+        return redirect('/'+room.name)
+    else:
+        return render_template('create_room.html')
+    
 @app.route('/<room_name>')
 @auth
 @room
@@ -155,20 +166,32 @@ def post(room_id, action):
 ###################
 
 user_rooms = db.Table('user_rooms',
-    db.Column('uid', db.String(120)),
+    db.Column('uid', db.Integer, db.ForeignKey('user.id')),
     db.Column('room_id', db.Integer, db.ForeignKey('room.id'))
 )
 
+class Role(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120))
+    permissions = db.Column(db.String(120))
+    users = db.relationship('User', lazy='dynamic', backref='role')
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120))
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    surveys = db.relationship('Survey', lazy='dynamic', backref='user')
+    
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     passkey = db.Column(db.String(120))
     creator = db.Column(db.String(120))
 
-    def __init__(self, name, creator):
+    def __init__(self, name, creator, passkey):
         self.name = name
         self.creator = creator
-        self.passkey = ''
+        self.passkey = passkey
 
     @property
     def questions(self):
@@ -190,6 +213,7 @@ class Survey(db.Model):
     closed = db.Column(db.Boolean)
     options = db.Column(db.PickleType)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     room = db.relationship('Room', backref='surveys')
     votes = db.relationship('Vote', lazy='dynamic', backref='survey')
 
