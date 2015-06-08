@@ -1,64 +1,64 @@
-<!DOCTYPE html>
+<!--DOCTYPE html>
 <html>
 <head lang="en">
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
-    <title></title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/styles.css"-->
+  <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+  <!--title></title>
 
 
 </head>
-<body>
+<body-->
 <div class="col-md-12">
-    <div class="container">
-        <h1>LiFi | Live Feedback </h1>
+  <div class="container">
+    <h1>LiFi | Live Feedback </h1>
 
-        <div class="col-md-12 lectureWrapper">
-            <div class="col-md-12 createLectureWrapper">
-                <h3>Veranstaltung erstellen</h3>
-                <input type="text" class="in inTxt" placeholder="Name">
-                <input type="text" class="in inTxt" placeholder="Kennwort">
-                <button type="submit" class="in button" onclick="window.location.href = 'dozentInLecture.html'">erstellen</button>
-                <hr>
-            </div>
-            <h3>Veranstaltung beitreten</h3>
-            <div class="col-md-12">
-                <input type="text" class="in inTxt" placeholder="Veranstaltungs Password">
-                <button type="submit" name="lecturePassword" class="in">beitreten</button>
-                <hr>
-            </div>
-        </div>
-
+    <div class="col-md-12 lectureWrapper">
+      <div class="col-md-12 createLectureWrapper">
+        <h3>Veranstaltung erstellen</h3>
+        <input type="text" class="in inTxt" placeholder="Name">
+        <input type="text" class="in inTxt" placeholder="Kennwort">
+        <button type="submit" class="in button" onclick="window.location.href = 'dozentInLecture.html'">erstellen</button>
+        <hr>
+      </div>
+      <h3>Veranstaltung beitreten</h3>
+      <div class="col-md-12">
+        <input type="text" class="in inTxt" placeholder="Veranstaltungs Password">
+        <button type="submit" name="lecturePassword" class="in">beitreten</button>
+        <hr>
+      </div>
     </div>
+
+  </div>
 </div>
 
 
 <script>
-    $(function() {
-        $(".star").click(function(){
-            $(this).attr("src","assets/icons/star-48.png")
-        });
+  $(function() {
+    $(".star").click(function(){
+      $(this).attr("src","assets/icons/star-48.png")
     });
-    function setDiagram() {
-        drawBarVer("diagramver","3","bar_pos_ver",48,"Nein","beschr");
-        drawBarVer("diagramver","4","bar_neg_ver",80,"Ja","beschr");
-        drawBarVer("diagramver","5","bar_pos_ver",59,"vielleicht","beschr");
-        drawBarVer("diagramver","6","bar_neg_ver",17,"kein plan","beschr");
+  });
+  function setDiagram() {
+    drawBarVer("diagramver","3","bar_pos_ver",48,"Nein","beschr");
+    drawBarVer("diagramver","4","bar_neg_ver",80,"Ja","beschr");
+    drawBarVer("diagramver","5","bar_pos_ver",59,"vielleicht","beschr");
+    drawBarVer("diagramver","6","bar_neg_ver",17,"kein plan","beschr");
 
-    }
-    function drawBarVer(targetId,barId,styleClass,barValue,beschr,beschrClass) {
-        document.getElementById(targetId).innerHTML += '<div class="complBar"><div class="dia_container"><div id="'+barId+'" class="'+styleClass+'" style="height: '+barValue+'%;bottom: -'+(100-barValue)+'%;">'+barValue+' %</div></div>'+
-        '<div class="'+beschrClass+'">'+beschr+'</div></div>';
-    }
-    function drawBarHor(targetId,barId,styleClass,barValue,beschr,beschrClass) {
-        document.getElementById(targetId).innerHTML += '<div id="'+barId+'" class="'+styleClass+'" style="width: '+barValue+'%;">'+barValue+' %</div>'+
-        '<div class="'+beschrClass+'">'+beschr+'</div>';
-    }
+  }
+  function drawBarVer(targetId,barId,styleClass,barValue,beschr,beschrClass) {
+      document.getElementById(targetId).innerHTML += '<div class="complBar"><div class="dia_container"><div id="'+barId+'" class="'+styleClass+'" style="height: '+barValue+'%;bottom: -'+(100-barValue)+'%;">'+barValue+' %</div></div>'+
+      '<div class="'+beschrClass+'">'+beschr+'</div></div>';
+  }
+  function drawBarHor(targetId,barId,styleClass,barValue,beschr,beschrClass) {
+      document.getElementById(targetId).innerHTML += '<div id="'+barId+'" class="'+styleClass+'" style="width: '+barValue+'%;">'+barValue+' %</div>'+
+      '<div class="'+beschrClass+'">'+beschr+'</div>';
+  }
 
-    window.onload = setDiagram;
+  window.onload = setDiagram;
 </script>
 
 
-</body>
+<!--/body>
 </html>

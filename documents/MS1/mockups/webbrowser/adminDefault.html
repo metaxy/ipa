@@ -1,58 +1,60 @@
-<!DOCTYPE html>
+<!--DOCTYPE html>
 <html>
 <head lang="en">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css"-->
     <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+    <!--script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+    <script src="js/app.js"></script>
     <title></title>
 
 
 </head>
-<body>
-<div class="col-md-12">
+<body-->
+  <div class="col-md-12">
     <div class="container">
-        <h1>LiFi | Live Feedback </h1>
-        <div class="col-md-12 lectureWrapper">
-            <h3>Veranstaltung erstellen</h3>
-            <input type="text" class="in inTxt" placeholder="Name">
-            <input type="text" class="in inTxt" placeholder="Kennwort">
-            <button type="submit" class="in button">erstellen</button>
-            <h3 style="margin-top: 30px">Veranstaltung beitreten</h3>
-            <input type="text" class="in inTxt inLine" placeholder="Veranstaltungs Password">
-            <button type="submit" name="lecturePassword" class="in button inLine" onclick="window.location.href ='adminInLecture.html'">beitreten</button>
-            <hr>
-            <h3>Existierende Veranstaltungen</h3>
-            <select name="existingLectures">
-                <option>lorem</option>
-                <option>ipsum</option>
-                <option>sit</option>
-            </select>
-            <button type="button" class="in button">beenden</button>
-        </div>
+      <h1>LiFi | Live Feedback </h1>
+      <div class="col-md-12 lectureWrapper">
+        <h3>Veranstaltung erstellen</h3>
+        <input type="text" class="in inTxt" placeholder="Name">
+        <input type="text" class="in inTxt" placeholder="Kennwort">
+        <button type="submit" class="in button">erstellen</button>
+        <h3 style="margin-top: 30px">Veranstaltung beitreten</h3>
+        <input type="text" class="in inTxt inLine" placeholder="Veranstaltungs Password">
+        <button type="submit" name="lecturePassword" class="in button inLine" onclick="window.location.href ='adminInLecture.html'">beitreten</button>
+        <hr>
+        <h3>Existierende Veranstaltungen</h3>
+        <select name="existingLectures">
+          <option>lorem</option>
+          <option>ipsum</option>
+          <option>sit</option>
+          </select>
+        <button type="button" class="in button">beenden</button>
+      </div>
+      <div class="col-md-12">
+        <hr>
+        <h3>Rollen</h3>
+        <input type="text" class="in inTxt" placeholder="Rollenname">
+        <button type="button" class="in button">anlegen</button>
+        <h3 style="margin-top: 50px">Existierende Rollen</h3>
+        <select name="existingRoles">
+          <option>admin</option>
+          <option>dozent</option>
+          <option>teilnehmer</option>
+        </select>
+        <button type="button" class="in button inLine" >modifizieren</button>
+        <button type="button" class="in button inLine" >zuweisen</button>
+        <button type="button" class="in" >löschen</button>
         <div class="col-md-12">
-            <hr>
-            <h3>Rollen</h3>
-            <input type="text" class="in inTxt" placeholder="Rollenname">
-            <button type="button" class="in button">anlegen</button>
-            <h3 style="margin-top: 50px">Existierende Rollen</h3>
-            <select name="existingRoles">
-                <option>admin</option>
-                <option>dozent</option>
-                <option>teilnehmer</option>
-            </select>
-            <button type="button" class="in button inLine" >modifizieren</button>
-            <button type="button" class="in button inLine" >zuweisen</button>
-            <button type="button" class="in" >löschen</button>
-            <div class="col-md-12">
-                <input type="text" class="in inTxt" name="accountName" placeholder="Accountname">
-                <button type="button" class="in" style="background-color: #a02935" onclick="window.location.href = 'index.html'">löschen</button>
-                <button type="button" class="in button" onclick="window.location.href = 'index.html'">erstellen</button>
-                <br>
-                <button type="button" class="in button" onclick="window.location.href = 'index.html'">abmelden</button>
-            </div>
-        </div>
+        <input type="text" class="in inTxt" name="accountName" placeholder="Accountname">
+        <button type="button" class="in" style="background-color: #a02935" onclick="window.location.href = 'index.html'">löschen</button>
+        <button type="button" class="in button" onclick="window.location.href = 'index.html'">erstellen</button>
+        <br>
+        <button type="button" class="in button" onclick="window.location.href = 'index.html'">abmelden</button>
+      </div>
     </div>
+  </div>
 </div>
 
 
@@ -84,5 +86,5 @@
 </script>
 
 
-</body>
+<!--/body>
 </html>
