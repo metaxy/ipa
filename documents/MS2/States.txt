@@ -1,0 +1,100 @@
+TODO : customize whole 1.
+ 
+__________________________
+
+1.States for the Webapp
+__________________________
+
+
+	***************
+	 Administrator
+	***************
+		defaultAdminPage
+		adminInLecturePage
+
+	***************
+	  Teilnehmer
+	***************
+		defaultTeilnehmerPage
+		teilnehmerInLecture
+
+		umfragePage (alert style) - for the case there is more than one survery running at once, it would be better to display them blockwise under each other , that means we would put them at the bottom of the teilnehmerInLecture-state
+
+
+	***************
+	     Dozent
+	***************
+		defaultDozentPage
+		dozentInLecturePage
+
+__________________________
+
+2.States for the Androidapp
+__________________________
+
+
+	for all states in the Androidapp there is a miniMenu positioned at top right position
+
+
+	***************
+	 Administrator
+	***************
+		.defaultAdminPage:
+			tabs
+				Veranstaltung - create , join 
+				Account - create, delete
+				Rollen - create, modify, assign
+			miniMenu:
+				logOut
+
+
+		.adminInLecturePage:
+			tabs
+				Umfrage - create, save, set as active, analyze
+				Frage - ask question, delete question, mark question
+				default - actual speed, speedregulation
+			miniMenu
+				logOut - implizit leave the lecture
+				leave the lecture - back to defaultAdminPage
+				close the lecture
+
+	***************
+	  Teilnehmer
+	***************
+		.defaultTeilnehmerPage:
+			tabs
+				there is just the useCase: Veranstaltung beitreten and ausloggen - therefore we don’t need to have extra tabs
+			miniMenu
+				logOut
+		.teilnehmerInLecture:
+			tabs
+				Frage - ask question, mark question, see all questions
+				Default - speedregulation, ( optional survery in case we dont use the alert-window alternative)
+
+
+			miniMenu
+				logOut - implizit leave the lecture 
+				leave Lecture - back to defaultAdminPage
+
+			umfragePage (alert style) - for the case there is more than one survery running at once, it would be better to display them blockwise under each other , that means we would put them at the bottom of the teilnehmerInLecture-state
+
+
+	***************
+	     Dozent
+	***************
+		.defaultDozentPage:
+			tabs
+				there is just the useCase: Veranstaltung beitreten, Veranstaltung erstellen and ausloggen - therefore we don’t need to have extra tabs
+			miniMenu
+				logOut
+		.dozentInLecturePage:
+			tabs
+				Umfrage - create, save, set as active, auswerten
+				Frage - ask question, delete question, mark question
+				default - actual speed, speedregulation, 
+			miniMenu
+				logOut
+				close the lecture
+
+
+
