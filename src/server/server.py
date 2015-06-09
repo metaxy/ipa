@@ -9,7 +9,7 @@ import requests
 
 from sqlalchemy import func
 
-from flask import Flask, request, session, redirect, abort, render_template, url_for
+from flask import Flask, request, session, redirect, abort, render_template, url_for, flash
 from flask.ext.sqlalchemy import SQLAlchemy
 
 ADMINS = ['admin']
@@ -41,7 +41,7 @@ def room(func):
         if not room:
             room = Room(name, session['uid'])
         elif room.passkey != '' and\
-            not user_rooms.query.filter_by(room_id=room.id, uid=session['uid']).exists() and\
+            not room.users.filter_by(name=session['uid']).count() == 1 and\
             not is_admin():
                 abort(403)
         request.room = room
@@ -66,6 +66,9 @@ def login():
     if request.method == 'POST':
         if perform_login(request.form['uid'], request.form['password']):
             session['uid'] = request.form['uid']
+            user = User(name=session['uid'])
+            db.session.add(user)
+            db.session.commit()
             return redirect(request.args.get('redirect', '/'))
         return redirect('/_login')
     else:
@@ -74,7 +77,8 @@ def login():
 @app.route('/')
 @auth
 def index():
-    return 'It works!'
+    user = User.query.filter_by(name=session['uid']).first()
+    return 'It works! '+user.name + ' !'
 
 @app.route('/create_room', methods=['GET', 'POST'])
 @auth
@@ -82,6 +86,9 @@ def create_room():
     if request.method == 'POST':
         room = Room(request.form['name'], session['uid'], request.form['passkey'])
         db.session.add(room)
+        user = User.query.filter_by(name=session['uid']).first()
+        user.rooms.append(room)
+        db.session.add(user)
         db.session.commit()
         return redirect('/'+room.name)
     else:
@@ -181,6 +188,7 @@ class User(db.Model):
     name = db.Column(db.String(120))
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     surveys = db.relationship('Survey', lazy='dynamic', backref='user')
+    rooms = db.relationship('Room', secondary=user_rooms, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
