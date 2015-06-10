@@ -9,10 +9,15 @@ import requests
 
 from sqlalchemy import func
 
-from flask import Flask, request, session, redirect, abort, render_template, url_for, flash
+from flask import Flask, request, session, redirect, abort, render_template, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
 
 ADMINS = ['admin']
+
+create_question, join_lecture, leave_lecture, regulate_speed, view_question, vote_question, vote_survey = 0,1,2,3,4,5,6
+manage_lecture, create_survey, close_survey, view_survey, view_speed, delete_question = 7,8,9,10,11,12
+create_account, delete_account, assign_role, create_role, edit_role, delete_role = 13,14,15,16,17,18
+
 MAX_OPTS = 32
 
 app = Flask(__name__)
@@ -66,6 +71,11 @@ def login():
     if request.method == 'POST':
         if perform_login(request.form['uid'], request.form['password']):
             session['uid'] = request.form['uid']
+            """if is_admin():
+                user = User(name=session['uid'], role_id=Role.query.filter_by(name='admin').first().id)
+            else:
+                user = User(name=session['uid'], role_id=Role.query.filter_by(name='participant').first().id)
+            """
             user = User(name=session['uid'])
             db.session.add(user)
             db.session.commit()
@@ -85,9 +95,9 @@ def index():
 def create_room():
     if request.method == 'POST':
         room = Room(request.form['name'], session['uid'], request.form['passkey'])
-        db.session.add(room)
         user = User.query.filter_by(name=session['uid']).first()
         user.rooms.append(room)
+        db.session.add(room)        
         db.session.add(user)
         db.session.commit()
         return redirect('/'+room.name)
@@ -266,7 +276,14 @@ class Survey(db.Model):
 
 if __name__ == '__main__':
 	if '--create-db' in sys.argv:
-		db.create_all()
+         db.create_all()
+         participant = Role(name='participant', permissions=str(create_question)+','+str(join_lecture)+','+str(leave_lecture)+','+str(regulate_speed)+','+str(view_question)+','+str(vote_question)+','+str(vote_survey))
+         lecturer = Role(name='lecturer', permissions=str(manage_lecture)+','+str( create_survey)+','+str( close_survey)+','+str( view_survey)+','+str( view_speed)+','+str( delete_question)+','+str(create_question)+','+str( join_lecture)+','+str( regulate_speed)+','+str( view_question)+','+str( vote_question)+','+str( vote_survey))
+         admin = Role(name='admin')
+         db.session.add(admin)
+         db.session.add(lecturer)
+         db.session.add(participant)
+         db.session.commit()
 	else:
-		app.debug = True
-		app.run()
+         app.debug = True
+         app.run()
