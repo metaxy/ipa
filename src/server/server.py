@@ -46,7 +46,7 @@ def room(func):
         elif room.passkey != '' and\
             not room.users.filter_by(name=session['uid']).count() == 1 and\
             not is_admin():
-                abort(403)
+                return redirect('/login_room')
         request.room = room
         return func(*args, room=room, **kwargs)
     return wrapper
@@ -62,31 +62,33 @@ def auth(func):
         return func(*args, **kwargs)
     return wrapper
 
-def perform_login(uid, pw):
-    return uid==pw
+def perform_login(pw_form, pw):
+    return pw_form==pw
 
 ######################
 
 @app.route('/_login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        if perform_login(request.form['uid'], request.form['password']):
-            session['uid'] = request.form['uid']
-            if is_admin():
-                user = User(name=session['uid'], role=Role.query.filter_by(name='admin').one())
-            else:
-                user = User(name=session['uid'], role=Role.query.filter_by(name='participant').one())
+        user = User.query.filter_by(name=request.form['uid']).first()
+        #TODO link the user creation with LDAP request if user doesn't exist
+        if not user:
+            user = User(name=request.form['uid'], password=request.form['password'], role=Role.query.filter_by(name='participant').first())
             db.session.add(user)
             db.session.commit()
             return redirect(request.args.get('redirect', '/'))
-        return redirect('/_login')
+        elif perform_login(request.form['password'], user.password):
+            session['uid'] = request.form['uid']            
+            return redirect(request.args.get('redirect', '/'))
+        else:
+            return redirect('/_login')
     else:
         return render_template('login.html')
 
 @app.route('/')
 @auth
 def index():
-    return 'It works! '+request.user.name + ' !'
+    return 'It works! '+ request.user.name + ' !'
 
 @app.route('/create_room', methods=['GET', 'POST'])
 @auth
@@ -100,17 +102,37 @@ def create_room():
         return redirect('/'+room.name)
     else:
         return render_template('create_room.html')
-    
+
+@app.route('/login_room', methods=['GET', 'POST'])
+@auth
+def login_room():
+    rooms = Room.query.all()
+    rooms_name = []
+    for room in rooms:
+        rooms_name.append(room.name)
+        
+    if request.method == 'POST':
+        room = Room.query.filter_by(name=request.form['room_name']).first()
+        if(request.form['passkey'] == room.passkey):
+            request.user.rooms.append(room)
+            db.session.add(request.user)
+            db.session.commit()
+            return redirect('/'+room.name)
+        else :
+            return render_template('login_room.html', rooms_name=rooms_name)
+    else :
+        return render_template('login_room.html', rooms_name=rooms_name)
+        
 @app.route('/<room_name>')
 @auth
 @room
 def room_view(room):
     return render_template('room.html',
-            room=room,
-            questions=room.questions,
-            surveys=room.proper_surveys,
-            is_lecturer=is_lecturer(),
-            max_opts=MAX_OPTS)
+                room=room,
+                questions=room.questions,
+                surveys=room.proper_surveys,
+                is_lecturer=is_lecturer(),
+                max_opts=MAX_OPTS)
 
 @app.route('/<room_name>/ask', methods=['POST'])
 @auth
@@ -192,6 +214,7 @@ class Role(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
+    password = db.Column(db.String(120))
 
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     role = db.relationship('Role', backref='users')

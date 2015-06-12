@@ -1,0 +1,11 @@
+<!doctype html>
+<title>Login room</title>
+<form action={{url_for('login_room')}} method=POST>
+  <select name=room_name>
+    {% for name in rooms_name %}
+    <option>{{name}}</option>
+    {% endfor %}
+  </select>
+  <input type=password name=passkey></input>
+  <input type=submit>Go in this room</input>
+</form>
