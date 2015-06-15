@@ -1,40 +1,59 @@
 #!/usr/bin/env python3
 
 import sys
-
 from functools import wraps, lru_cache
 import json
+from enum import Enum
 
 import requests
-
 from sqlalchemy import func
-
 from flask import Flask, request, session, redirect, abort, render_template, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
 
-create_question, join_lecture, leave_lecture, regulate_speed, view_question, vote_question, vote_survey = 0,1,2,3,4,5,6
-manage_lecture, create_survey, close_survey, view_survey, view_speed, delete_question = 7,8,9,10,11,12
-create_account, delete_account, assign_role, create_role, edit_role, delete_role = 13,14,15,16,17,18
+class Perms(Enum):
+    participant = (
+            view_index,
+            view_room,
+            create_question,
+            join_lecture,
+            vote_tempo,
+            vote_question,
+            vote_survey
+            ) = tuple(range(7))
+    _lecturer = (
+            manage_lecture,
+            create_survey,
+            create_room,
+            close_survey,
+            delete_question
+            ) = tuple(range(12,12+5))
+    lecturer = participant + _lecturer
+    _admin_only = (
+            create_account,
+            delete_account,
+            assign_role,
+            create_role,
+            edit_role,
+            delete_role
+            ) = tuple(range(26,26+6))
 
-MAX_OPTS = 32
+MAX_OPTS = 4
 
 app = Flask(__name__)
 app.debug = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://hieronymus:2dS3v5l6oaG2RpEne1CH7WT9UyEwe5nk@localhost/hieronymus'
 app.config['PUSH_STREAM_URL'] = 'http://localhost/pub'
+app.config['ADMINS'] = ['admin']
 app.secret_key = 'jMHF20JxP49hfTp2rZIDFmRbPCcjw5p9'
 db = SQLAlchemy(app)
+
+def is_admin():
+    return session['uid'] in app.config['ADMINS']
 
 def publish(channel, eventtype, payload):
     return
     requests.post(app.config['PUSH_STREAM_URL'], params={'id': channel},
             data=json.dumps({'type': eventtype, 'payload': payload}))
-
-def is_admin():
-    return request.user.role.name == 'admin'
-
-def is_lecturer():
-    return request.user == request.room.creator
 
 def room(func):
     @wraps(func)
@@ -56,9 +75,11 @@ def auth(func):
     def wrapper(*args, **kwargs):
         if not 'uid' in session:
             return redirect(url_for('login', redirect=request.path))
-        request.user = User.query.filter_by(name=session['uid']).first()
-        if not request.user:
+        user = request.user = User.query.filter_by(name=session['uid']).first()
+        if not user:
             return redirect(url_for('login', redirect=request.path))
+        if not getattr(Perms, func.__name__) in user.permissions or is_admin():
+            abort(403)
         return func(*args, **kwargs)
     return wrapper
 
@@ -69,11 +90,12 @@ def perform_login(pw_form, pw):
 
 @app.route('/_login', methods=['GET', 'POST'])
 def login():
+    # return status codes
     if request.method == 'POST':
-        user = User.query.filter_by(name=request.form['uid']).first()
-        #TODO link the user creation with LDAP request if user doesn't exist
-        if not user:
-            user = User(name=request.form['uid'], password=request.form['password'], role=Role.query.filter_by(name='participant').first())
+        #TODO link the user creation with LDAP
+        if perform_login(request.form['uid'], request.form['password']):
+            session['uid'] = request.form['uid']
+            user = User(name=session['uid'], role=Role.query.filter_by(name='participant').one())
             db.session.add(user)
             db.session.commit()
             
@@ -89,8 +111,8 @@ def login():
 
 @app.route('/')
 @auth
-def index():
-    return 'It works! '+ request.user.name + ' !'
+def view_index():
+    return 'It works! ' + request.user.name + ' !'
 
 @app.route('/create_room', methods=['GET', 'POST'])
 @auth
@@ -102,6 +124,7 @@ def create_room():
         db.session.add(request.user)
         db.session.commit()
         return redirect('/'+room.name)
+        # return room name view here
     else:
         return render_template('create_room.html')
 
@@ -128,7 +151,7 @@ def login_room():
 @app.route('/<room_name>')
 @auth
 @room
-def room_view(room):
+def view_room(room):
     return render_template('room.html',
                 room=room,
                 questions=room.questions,
@@ -139,7 +162,7 @@ def room_view(room):
 @app.route('/<room_name>/ask', methods=['POST'])
 @auth
 @room
-def ask(room):
+def create_question(room):
     sv = Survey(request.form['question'], [], room)
     db.session.add(sv)
     db.session.commit()
@@ -149,9 +172,7 @@ def ask(room):
 @app.route('/<room_name>/new_survey', methods=['POST'])
 @auth
 @room
-def new_survey(room):
-    if not is_lecturer():
-        abort(403)
+def create_survey(room):
     opts = []
     for i in range(MAX_OPTS):
         opt = request.form.get('option'+str(i))
@@ -170,7 +191,7 @@ def new_survey(room):
 @app.route('/<room_name>/<int:survey_id>/vote', methods=['POST'])
 @auth
 @room
-def vote(room, survey_id):
+def vote_survey(room, survey_id):
     sv = Survey.query.get_or_404(survey_id)
     val = int(request.form['val'])
     if not val in range(0, len(sv.options)) and val:
@@ -181,9 +202,7 @@ def vote(room, survey_id):
 @app.route('/<room_name>/<int:survey_id>/close', methods=['POST'])
 @auth
 @room
-def close(room, survey_id):
-    if not is_lecturer():
-        abort(403)
+def close_survey(room, survey_id):
     sv = Survey.query.get_or_404(survey_id)
     sv.closed = True
     db.session.add(sv)
@@ -194,10 +213,10 @@ def close(room, survey_id):
 @app.route('/<room_name>/t/<action>', methods=['POST'])
 @auth
 @room
-def post(room_id, action):
+def vote_tempo(room_id, action):
     room = Room.query.get_or_404(room_id)
-    if action not in ('+', '-'):
-        abort(400, 'Tempo action must be one of "+" or "-"')
+    if action not in ('up', 'down'):
+        abort(400, 'Tempo action must be one of "up" or "down"')
     publish(room.name, 'tempo', action)
     return redirect('/'+room.name)
 
@@ -211,7 +230,16 @@ user_rooms = db.Table('user_rooms',
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
-    permissions = db.Column(db.String(120))
+    permissions = db.Column(db.Integer)
+
+    def __init__(self, name, perms=()):
+        self.name = name
+        self.permissions = 0
+        for perm in perms:
+            self.permissions |= perm
+    
+    def __contains__(self, perm):
+        return bool(self.permissions & (1<<perm.value))
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -223,7 +251,7 @@ class User(db.Model):
 
     surveys = db.relationship('Survey', lazy='dynamic', backref='user')
     rooms = db.relationship('Room', secondary=user_rooms, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
-    
+
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
@@ -306,10 +334,8 @@ if __name__ == '__main__':
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     if '--create-db' in sys.argv:
         db.create_all()
-        participant = Role(name='participant', permissions=str(create_question)+','+str(join_lecture)+','+str(leave_lecture)+','+str(regulate_speed)+','+str(view_question)+','+str(vote_question)+','+str(vote_survey))
-        lecturer = Role(name='lecturer', permissions=str(manage_lecture)+','+str( create_survey)+','+str( close_survey)+','+str( view_survey)+','+str( view_speed)+','+str( delete_question)+','+str(create_question)+','+str( join_lecture)+','+str( regulate_speed)+','+str( view_question)+','+str( vote_question)+','+str( vote_survey))
-        admin = Role(name='admin')
-        db.session.add(admin)
+        participant = Role('admin', Perms.participant)
+        lecturer    = Role('admin', Perms.lecturer)
         db.session.add(lecturer)
         db.session.add(participant)
         db.session.commit()
