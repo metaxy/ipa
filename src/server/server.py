@@ -101,7 +101,6 @@ def login():
             db.session.add(user)
             db.session.commit()
             
-            session['uid'] = request.form['uid'] 
             return redirect(request.args.get('redirect', '/'))
         elif perform_login(request.form['password'], user.password):
             session['uid'] = request.form['uid']            
@@ -158,7 +157,7 @@ def view_room(room):
                 room=room,
                 questions=room.questions,
                 surveys=room.proper_surveys,
-                is_lecturer=is_lecturer(),
+                is_lecturer=(room.creator == request.user),
                 max_opts=MAX_OPTS)
 
 @app.route('/<room_name>/ask', methods=['POST'])
@@ -336,8 +335,8 @@ if __name__ == '__main__':
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     if '--create-db' in sys.argv:
         db.create_all()
-        participant = Role('admin', DEFAULT_PARTICIPANT)
-        lecturer    = Role('admin', DEFAULT_LECTURER)
+        participant = Role('participant', DEFAULT_PARTICIPANT)
+        lecturer    = Role('lecturer', DEFAULT_LECTURER)
         db.session.add(lecturer)
         db.session.add(participant)
         db.session.commit()
