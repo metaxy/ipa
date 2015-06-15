@@ -11,7 +11,7 @@ from flask import Flask, request, session, redirect, abort, render_template, url
 from flask.ext.sqlalchemy import SQLAlchemy
 
 class Perms(Enum):
-    participant = (
+    _participant = (
             view_index,
             view_room,
             create_question,
@@ -27,7 +27,6 @@ class Perms(Enum):
             close_survey,
             delete_question
             ) = tuple(range(12,12+5))
-    lecturer = participant + _lecturer
     _admin_only = (
             create_account,
             delete_account,
@@ -36,6 +35,9 @@ class Perms(Enum):
             edit_role,
             delete_role
             ) = tuple(range(26,26+6))
+
+DEFAULT_PARTICIPANT = Perms._participant.value
+DEFAULT_LECTURER = Perms._participant.value + Perms._lecturer.value
 
 MAX_OPTS = 4
 
@@ -334,8 +336,8 @@ if __name__ == '__main__':
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     if '--create-db' in sys.argv:
         db.create_all()
-        participant = Role('admin', Perms.participant)
-        lecturer    = Role('admin', Perms.lecturer)
+        participant = Role('admin', DEFAULT_PARTICIPANT)
+        lecturer    = Role('admin', DEFAULT_LECTURER)
         db.session.add(lecturer)
         db.session.add(participant)
         db.session.commit()
