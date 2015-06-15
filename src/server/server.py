@@ -76,6 +76,8 @@ def login():
             user = User(name=request.form['uid'], password=request.form['password'], role=Role.query.filter_by(name='participant').first())
             db.session.add(user)
             db.session.commit()
+            
+            session['uid'] = request.form['uid'] 
             return redirect(request.args.get('redirect', '/'))
         elif perform_login(request.form['password'], user.password):
             session['uid'] = request.form['uid']            
