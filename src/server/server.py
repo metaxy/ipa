@@ -7,7 +7,7 @@ from enum import Enum
 
 import requests
 from sqlalchemy import func
-from flask import Flask, request, session, redirect, abort, render_template, url_for
+from flask import Flask, request, session, redirect, abort, render_template, url_for, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 
 class Perms(Enum):
@@ -44,13 +44,10 @@ MAX_OPTS = 4
 app = Flask(__name__)
 app.debug = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://hieronymus:2dS3v5l6oaG2RpEne1CH7WT9UyEwe5nk@localhost/hieronymus'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PUSH_STREAM_URL'] = 'http://localhost/pub'
-app.config['ADMINS'] = ['admin']
 app.secret_key = 'jMHF20JxP49hfTp2rZIDFmRbPCcjw5p9'
 db = SQLAlchemy(app)
-
-def is_admin():
-    return session['uid'] in app.config['ADMINS']
 
 def publish(channel, eventtype, payload):
     return
@@ -64,143 +61,149 @@ def room(func):
         room = Room.query.filter_by(name=name).first()
         if not room:
             abort(404)
-        elif room.passkey != '' and\
-            not room.users.filter_by(name=session['uid']).count() == 1 and\
-            not is_admin():
-                return redirect('/login_room')
+        elif room.passkey != '' and not room.users.filter_by(name=session['uid']).exists():
+            abort(403)
         request.room = room
         return func(*args, room=room, **kwargs)
     return wrapper
 
-def auth(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if not 'uid' in session:
-            return redirect(url_for('login', redirect=request.path))
-        user = request.user = User.query.filter_by(name=session['uid']).first()
-        if not user:
-            return redirect(url_for('login', redirect=request.path))
-        if not getattr(Perms, func.__name__) in user.permissions or is_admin():
-            abort(403)
-        return func(*args, **kwargs)
-    return wrapper
+def auth(defaccess_or_fn=None, **kwargs):
+    def deco(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if not 'uid' in session:
+                abort(403)
+            user = request.user = User.query.filter_by(name=session['uid']).first()
+            if not getattr(Perms, kwargs.get(request.method, defaccess_or_fn)) in user.permissions:
+                abort(403)
+            return func(*args, **kwargs)
+        return wrapper
+
+    if type(defaccess_or_fn) == type(auth):
+        fn,defaccess_or_fn = defaccess_or_fn,defaccess_or_fn.__name__
+        return deco(fn)
+    return deco
 
 def perform_login(pw_form, pw):
     return pw_form==pw
 
 ######################
 
-@app.route('/_login', methods=['GET', 'POST'])
-def login():
-    # return status codes
-    if request.method == 'POST':
-        #TODO link the user creation with LDAP
-        if perform_login(request.form['uid'], request.form['password']):
-            session['uid'] = request.form['uid']
-            user = User(name=session['uid'], role=Role.query.filter_by(name='participant').one())
-            db.session.add(user)
-            db.session.commit()
-            
-            return redirect(request.args.get('redirect', '/'))
-        elif perform_login(request.form['password'], user.password):
-            session['uid'] = request.form['uid']            
-            return redirect(request.args.get('redirect', '/'))
-        else:
-            return redirect('/_login')
-    else:
-        return render_template('login.html')
-
 @app.route('/')
 @auth
 def view_index():
-    return 'It works! ' + request.user.name + ' !'
+    return redirect('/static/index.html')
 
-@app.route('/create_room', methods=['GET', 'POST'])
+@app.route('/api/login', methods=['POST'])
+def login():
+    # return status codes
+    #TODO link the user creation with LDAP
+    rd = request.get_json(True)
+
+    if perform_login(rd['uid'], rd['password']):
+        session['uid'] = rd['uid']
+        user = request.user = User.query.filter_by(name=rd['uid']).first()
+        if not user:
+            user = User(name=session['uid'], role=Role.query.filter_by(name='participant').one())
+            db.session.add(user)
+            db.session.commit()
+        return jsonify(result='ok')
+    else:
+        abort(403)
+
+@app.route('/api/create_room', methods=['POST'])
 @auth
 def create_room():
-    if request.method == 'POST':
-        room = Room(request.form['name'], request.user, request.form['passkey'])
+    rd = request.get_json(True)
+    if Room.query.filter_by(name=rd['name']).exists():
+        abort(409)
+
+    room = Room(rd['name'], request.user, rd['passkey'])
+    request.user.rooms.append(room)
+    db.session.add(room)        
+    db.session.add(request.user)
+    db.session.commit()
+    return redirect(url_for('view_room', room=room.name))
+
+@app.route('/api/list_rooms')
+@auth('view_room')
+def list_rooms():
+    return jsonify(rooms=[r.name for r in Room.query.all()])
+        
+@app.route('/api/r/<room_name>/enter', methods=['POST'])
+@auth('view_room')
+def enter_room(room_name):
+    room = Room.query.filter_by(name=room_name).one()
+
+    rd = request.get_json(True)
+    if rd['passkey'] == room.passkey:
         request.user.rooms.append(room)
-        db.session.add(room)        
         db.session.add(request.user)
         db.session.commit()
-        return redirect('/'+room.name)
-        # return room name view here
+        return jsonify(result='ok')
     else:
-        return render_template('create_room.html')
+        abort(403)
 
-@app.route('/login_room', methods=['GET', 'POST'])
-@auth
-def login_room():
-    rooms = Room.query.all()
-    rooms_name = []
-    for room in rooms:
-        rooms_name.append(room.name)
-        
-    if request.method == 'POST':
-        room = Room.query.filter_by(name=request.form['room_name']).first()
-        if(request.form['passkey'] == room.passkey):
-            request.user.rooms.append(room)
-            db.session.add(request.user)
-            db.session.commit()
-            return redirect('/'+room.name)
-        else :
-            return render_template('login_room.html', rooms_name=rooms_name)
-    else :
-        return render_template('login_room.html', rooms_name=rooms_name)
-        
-@app.route('/<room_name>')
+@app.route('/api/r/<room_name>')
 @auth
 @room
 def view_room(room):
-    return render_template('room.html',
-                room=room,
-                questions=room.questions,
-                surveys=room.proper_surveys,
-                is_lecturer=(room.creator == request.user),
-                max_opts=MAX_OPTS)
+    return jsonify(name=room.name,
+            questions=[q.as_dict() for q in room.questions],
+            surveys=[sv.as_dict() for sv in room.surveys],
+            user_is_lecturer=(room.creator == request.user))
 
-@app.route('/<room_name>/ask', methods=['POST'])
+@app.route('/api/r/<room_name>/create_question', methods=['POST'])
 @auth
 @room
 def create_question(room):
-    sv = Survey(request.form['question'], [], room)
+    rd = request.get_json(True)
+    q = Question(rd['test'], room, request.user)
     db.session.add(sv)
     db.session.commit()
-    publish(room.name, 'question', sv.json)
-    return redirect('/'+room.name)
+    publish(room.name, 'question', q.as_dict())
+    return jsonify(result='ok')
 
-@app.route('/<room_name>/new_survey', methods=['POST'])
+@app.route('/api/r/<room_name>/create_survey', methods=['POST'])
 @auth
 @room
 def create_survey(room):
-    opts = []
-    for i in range(MAX_OPTS):
-        opt = request.form.get('option'+str(i))
-        if opt:
-            opts.append(opt)
-        else:
-            break
-    if len(opts) < 2: # communist polls not allowed
+    rd = request.get_json(True)
+    opts = rd['options']
+
+    if len(opts) not in range(2, MAX_OPTS+1):
         abort(400)
-    sv = Survey(request.form['title'], opts, room)
+
+    sv = Survey(rd['title'], opts, room)
     db.session.add(sv)
     db.session.commit()
-    publish(room.name, 'survey', sv.json)
-    return redirect('/'+room.name)
 
-@app.route('/<room_name>/<int:survey_id>/vote', methods=['POST'])
+    publish(room.name, 'survey', sv.as_dict())
+    return jsonify(result='ok')
+
+@app.route('/api/r/<room_name>/s/<int:survey_id>/vote', methods=['POST'])
 @auth
 @room
 def vote_survey(room, survey_id):
     sv = Survey.query.get_or_404(survey_id)
-    val = int(request.form['val'])
+
+    rd = request.get_json(True)
+    op = int(rd['option'])
     if not val in range(0, len(sv.options)) and val:
         abort(400)
-    sv.cast_vote(request.user, val)
-    return redirect('/'+room.name)
 
-@app.route('/<room_name>/<int:survey_id>/close', methods=['POST'])
+    sv.cast_vote(request.user, val)
+    return jsonify(result='ok')
+
+@app.route('/api/r/<room_name>/q/<int:question_id>/vote', methods=['POST'])
+@auth
+@room
+def vote_question(room, question_id):
+    q = Question.query.get_or_404(question_id)
+    q.cast_vote(request.user)
+    return jsonify(result='ok')
+
+@app.route('/api/r/<room_name>/s/<int:survey_id>/close', methods=['POST'])
 @auth
 @room
 def close_survey(room, survey_id):
@@ -208,18 +211,29 @@ def close_survey(room, survey_id):
     sv.closed = True
     db.session.add(sv)
     db.session.commit()
-    return redirect('/'+room.name)
+    return jsonify(result='ok')
+
+@app.route('/api/r/<room_name>/q/<int:question_id>/delete', methods=['POST'])
+@auth
+@room
+def delete_question(room, question_id):
+    sv = Question.query.get_or_404(question_id)
+    db.session.delete(sv)
+    db.session.commit()
+    return jsonify(result='ok')
 
 # ask for increased/decreased tempo
-@app.route('/<room_name>/t/<action>', methods=['POST'])
+@app.route('/api/r/<room_name>/t/<action>', methods=['POST'])
 @auth
 @room
 def vote_tempo(room_id, action):
     room = Room.query.get_or_404(room_id)
+
     if action not in ('up', 'down'):
-        abort(400, 'Tempo action must be one of "up" or "down"')
+        abort(400)
+
     publish(room.name, 'tempo', action)
-    return redirect('/'+room.name)
+    return jsonify(result='ok')
 
 ###################
 
@@ -250,7 +264,6 @@ class User(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     role = db.relationship('Role', backref='users')
 
-    surveys = db.relationship('Survey', lazy='dynamic', backref='user')
     rooms = db.relationship('Room', secondary=user_rooms, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
 
 class Room(db.Model):
@@ -265,30 +278,35 @@ class Room(db.Model):
         self.creator = creator
         self.passkey = passkey
 
-    @property
-    def questions(self):
-        return [ sv for sv in self.surveys if len(sv.options)==0 ]
-
-    @property
-    def proper_surveys(self):
-        return [ sv for sv in self.surveys if len(sv.options)>0 ]
-
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User')
+
     option = db.Column(db.Integer)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
+    survey = db.relationship('Survey')
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
+    question = db.relationship('Question')
+
+    def __init__(self, survey_or_question, user, option=0):
+        if type(survey_or_question) == Survey:
+            self.survey = survey_or_question
+        else:
+            self.question = survey_or_question
+        self.user, self.option = user, option
 
 class Survey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text)
     closed = db.Column(db.Boolean)
     options = db.Column(db.PickleType)
+
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     room = db.relationship('Room', backref='surveys')
-    votes = db.relationship('Vote', lazy='dynamic', backref='survey')
+
+    votes = db.relationship('Vote', lazy='dynamic')
 
     def __init__(self, title, options, room):
         self.title = title
@@ -297,13 +315,8 @@ class Survey(db.Model):
         self.closed = False
 
     def cast_vote(self, user, option):
-        self.votes.filter_by(uid=uid).delete()
-        vote = Vote()
-        vote.user = user
-        if option and option not in range(len(self.options)):
-            raise ValueError('Invalid option index')
-        vote.option = option
-        vote.survey = self
+        self.votes.filter_by(uid=user.id).delete()
+        vote = Vote(self, user, option)
         db.session.add(vote)
         db.session.commit()
     
@@ -318,22 +331,61 @@ class Survey(db.Model):
     def total_votes(self):
         return self.votes.count()
 
-    @property
-    def json(self):
+    def as_dict(self):
         if self.closed:
-            return {'title': self.title,
+            return {'id': self.id,
+                    'title': self.title,
+                    'options': self.options,
                     'results': self.count_votes(),
                     'total': self.total_votes}
         else:
-            return {'title': self.title,
+            return {'id': self.id,
+                    'title': self.title,
                     'options': self.options}
 
+class Question(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text)
+
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship('User')
+
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
+    room = db.relationship('Room', backref='questions')
+
+    votes = db.relationship('Vote', lazy='dynamic')
+
+    def __init__(self, text, room, creator):
+        self.text = text
+        self.room = room
+        self.creator = creator
+
+    def cast_vote(self, user):
+        self.votes.filter_by(uid=user.id).delete()
+        vote = Vote(self, user)
+        db.session.add(vote)
+        db.session.commit()
+    
+    def total_votes(self):
+        return self.votes.count()
+
+    def as_dict(self):
+        return {'id': self.id,
+                'text': self.text,
+                'votes': self.total_votes()}
 
 if __name__ == '__main__':
-    if '--debug' in sys.argv:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('-c', '--create-db', action='store_true')
+    parser.add_argument('-p', '--port', type=int, default=None)
+    args = parser.parse_args()
+
+    if args.debug:
         app.debug = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-    if '--create-db' in sys.argv:
+    if args.create_db:
         db.create_all()
         participant = Role('participant', DEFAULT_PARTICIPANT)
         lecturer    = Role('lecturer', DEFAULT_LECTURER)
@@ -341,4 +393,6 @@ if __name__ == '__main__':
         db.session.add(participant)
         db.session.commit()
     else:
-         app.run()
+        if args.port is not None:
+            app.config['SERVER_NAME'] = 'localhost:'+str(args.port)
+        app.run()
