@@ -61,7 +61,7 @@ def room(func):
         room = Room.query.filter_by(name=name).first()
         if not room:
             abort(404)
-        elif room.passkey != '' and not room.users.filter_by(name=session['uid']).exists():
+        elif request.user not in room.users:
             abort(403)
         request.room = room
         return func(*args, room=room, **kwargs)
@@ -74,7 +74,8 @@ def auth(defaccess_or_fn=None, **kwargs):
             if not 'uid' in session:
                 abort(403)
             user = request.user = User.query.filter_by(name=session['uid']).first()
-            if not getattr(Perms, kwargs.get(request.method, defaccess_or_fn)) in user.permissions:
+            if getattr(Perms, kwargs.get(request.method, defaccess_or_fn)) not in user.role:
+                p = getattr(Perms, kwargs.get(request.method, defaccess_or_fn))
                 abort(403)
             return func(*args, **kwargs)
         return wrapper
@@ -115,7 +116,7 @@ def login():
 @auth
 def create_room():
     rd = request.get_json(True)
-    if Room.query.filter_by(name=rd['name']).exists():
+    if Room.query.filter_by(name=rd['name']).first() is not None:
         abort(409)
 
     room = Room(rd['name'], request.user, rd['passkey'])
@@ -123,7 +124,7 @@ def create_room():
     db.session.add(room)        
     db.session.add(request.user)
     db.session.commit()
-    return redirect(url_for('view_room', room=room.name))
+    return redirect(url_for('view_room', room_name=room.name))
 
 @app.route('/api/list_rooms')
 @auth('view_room')
@@ -158,8 +159,8 @@ def view_room(room):
 @room
 def create_question(room):
     rd = request.get_json(True)
-    q = Question(rd['test'], room, request.user)
-    db.session.add(sv)
+    q = Question(rd['text'], room, request.user)
+    db.session.add(q)
     db.session.commit()
     publish(room.name, 'question', q.as_dict())
     return jsonify(result='ok')
@@ -251,7 +252,7 @@ class Role(db.Model):
         self.name = name
         self.permissions = 0
         for perm in perms:
-            self.permissions |= perm
+            self.permissions |= (1<<perm)
     
     def __contains__(self, perm):
         return bool(self.permissions & (1<<perm.value))
@@ -378,13 +379,14 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('-b', '--database', type=str, default='test.db')
     parser.add_argument('-c', '--create-db', action='store_true')
     parser.add_argument('-p', '--port', type=int, default=None)
     args = parser.parse_args()
 
     if args.debug:
         app.debug = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+args.database
     if args.create_db:
         db.create_all()
         participant = Role('participant', DEFAULT_PARTICIPANT)
@@ -408,6 +410,7 @@ if __name__ == '__main__':
             db.session.add(room_a)
             db.session.add(room_d)
             db.session.add(sv)
+            db.session.add(q)
         db.session.commit()
     else:
         if args.port is not None:

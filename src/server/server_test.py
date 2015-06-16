@@ -5,6 +5,7 @@ from unittest import TestCase, main
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from subprocess import *
 import requests as rq
+import atexit
 
 port = 5124
 
@@ -13,17 +14,23 @@ class ApiTest(TestCase):
         # create database directory
         self.tmpdir = TemporaryDirectory()
         script = join(dirname(realpath(__file__)), 'server.py')
+        testdb = join(self.tmpdir.name, 'test.db')
         
-        check_call(['python3', script, '--debug', '--create-db'],
-#                stdout=DEVNULL, stderr=DEVNULL,
+        check_call(['python3', script, '--debug', '--database', testdb, '--create-db'],
+                stdout=DEVNULL, stderr=DEVNULL,
                 cwd=self.tmpdir.name)
 
         global port
-        print('Spawning server on port', port)
         self.url = 'http://localhost:'+str(port)+'/api/'
-        self.server = Popen(['python3', script, '--debug', '--port', str(port)],
-#                stdout=DEVNULL, stderr=DEVNULL,
+        self.server = Popen(['python3', script, '--debug', '--database', testdb, '--port', str(port)],
+                stdout=DEVNULL, stderr=DEVNULL,
                 cwd=self.tmpdir.name)
+
+        def kill():
+            if self.server.poll() is None:
+                self.server.kill()
+                self.server.wait()
+        atexit.register(kill)
 
         port += 1
         time.sleep(1) # wait for server to start up
@@ -38,6 +45,9 @@ class ApiTest(TestCase):
         r = rq.post(self.url+'login', json={'uid': uid, 'password': uid})
         self.ok(r)
         return r.cookies
+
+    def success(self, r):
+        self.assertEqual(r.status_code, 200)
 
     def ok(self, r):
         self.assertEqual(r.status_code, 200)
@@ -64,35 +74,36 @@ class ApiTest(TestCase):
 
     def testCreateRoom(self):
         cred = self.login('user1')
-        self.denied     (rq.post(self.url+'r/create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
+        self.denied     (rq.post(self.url+'create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
 
         cred = self.login('lecturer1')
-        self.ok         (rq.post(self.url+'r/create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
-        self.ok         (rq.post(self.url+'r/create_room', json={'name': 'ünicödeが好き！', 'passkey': 'testpass1'}, cookies=cred))
-        self.conflict   (rq.post(self.url+'r/create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
+        self.success    (rq.post(self.url+'create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
+        self.success    (rq.post(self.url+'create_room', json={'name': 'ünicödeが好き！', 'passkey': 'testpass1'}, cookies=cred))
+        self.conflict   (rq.post(self.url+'create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
 
     def testAccessRoom(self):
         cred = self.login('user1')
         self.notfound(rq.get (self.url+'r/a_room_that_does_not_exist', cookies=cred))
 
-        self.ok(rq.get (self.url+'r/test_room_access', cookies=cred))
+        r = rq.get(self.url+'r/test_room_access', cookies=cred)
+        self.success(r)
         j = r.json()
         for key in ('name', 'questions', 'surveys', 'user_is_lecturer'):
             self.assertIn(key, j)
         self.assertEqual(j['name'], 'test_room_access')
-        self.assertIs(list, j['surveys'])
+        self.assertIs(list, type(j['surveys']))
         self.assertEqual(1, len(j['surveys']))
-        self.assertIs(list, j['questions'])
+        self.assertIs(list, type(j['questions']))
         self.assertEqual(1, len(j['questions']))
         self.assertEqual(False, j['user_is_lecturer'])
 
         self.denied (rq.get (self.url+'r/test_room_deny', cookies=cred))
         self.ok     (rq.post(self.url+'r/test_room_deny/enter', json={'passkey': 'test_passkey'}, cookies=cred))
-        self.ok     (rq.get (self.url+'r/test_room_deny', cookies=cred))
+        self.success(rq.get (self.url+'r/test_room_deny', cookies=cred))
 
         cred = self.login('lecturer1')
         r = rq.get(self.url+'r/test_room_access', cookies=cred)
-        self.ok(r)
+        self.success(r)
         j = r.json()
         self.assertEqual(True, j['user_is_lecturer'])
 
@@ -114,15 +125,14 @@ class ApiTest(TestCase):
     def testCloseSurvey(self):
         cred = self.login('user1')
         r = rq.get(self.url+'r/test_room_access', cookies=cred)
-        self.ok(r)
+        self.success(r)
         sid = r.json()['surveys'][0]['id']
 
-        self.notfound(rq.post(self.url+'r/test_room_access/s/123456789/close'))
-        self.denied  (rq.post(self.url+'r/test_room_access/s/'+str(sid)+'/close'))
+        self.denied  (rq.post(self.url+'r/test_room_access/s/'+str(sid)+'/close', cookies=cred))
 
         cred = self.login('lecturer1')
-        self.notfound(rq.post(self.url+'r/test_room_access/s/123456789/close'))
-        self.ok      (rq.post(self.url+'r/test_room_access/s/'+str(sid)+'/close'))
+        self.ok      (rq.post(self.url+'r/test_room_access/s/'+str(sid)+'/close', cookies=cred))
+        self.notfound(rq.post(self.url+'r/test_room_access/s/123456789/close', cookies=cred))
 
     def testCreateQuestion(self):
         cred = self.login('user2')
@@ -138,15 +148,14 @@ class ApiTest(TestCase):
     def testDeleteQuestion(self):
         cred = self.login('user1')
         r = rq.get(self.url+'r/test_room_access', cookies=cred)
-        self.ok(r)
+        self.success(r)
         qid = r.json()['questions'][0]['id']
 
-        self.notfound(rq.post(self.url+'r/test_room_access/s/123456789/close'))
-        self.denied  (rq.post(self.url+'r/test_room_access/s/'+str(qid)+'/close'))
+        self.denied  (rq.post(self.url+'r/test_room_access/q/'+str(qid)+'/delete', cookies=cred))
 
         cred = self.login('lecturer1')
-        self.notfound(rq.post(self.url+'r/test_room_access/s/123456789/close'))
-        self.ok      (rq.post(self.url+'r/test_room_access/s/'+str(qid)+'/close'))
+        self.ok      (rq.post(self.url+'r/test_room_access/q/'+str(qid)+'/delete', cookies=cred))
+        self.notfound(rq.post(self.url+'r/test_room_access/q/123456789/delete', cookies=cred))
 
 
 if __name__ == '__main__':
