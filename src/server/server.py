@@ -391,6 +391,23 @@ if __name__ == '__main__':
         lecturer    = Role('lecturer', DEFAULT_LECTURER)
         db.session.add(lecturer)
         db.session.add(participant)
+        if app.debug:
+            user1 = User(name='user1', role=participant)
+            user2 = User(name='user2', role=participant)
+            lecturer1 = User(name='lecturer1', role=lecturer)
+            room_a = Room('test_room_access', lecturer1, '')
+            user1.rooms.append(room_a)
+            lecturer1.rooms.append(room_a)
+            room_d = Room('test_room_deny', lecturer1, 'test_passkey')
+            lecturer1.rooms.append(room_d)
+            sv = Survey('test survey', ['opt1', 'opt2', 'opt3'], room_a)
+            q = Question('test question', room_a, user1)
+            db.session.add(user1)
+            db.session.add(user2)
+            db.session.add(lecturer1)
+            db.session.add(room_a)
+            db.session.add(room_d)
+            db.session.add(sv)
         db.session.commit()
     else:
         if args.port is not None:
