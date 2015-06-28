@@ -126,6 +126,64 @@ def create_room():
     db.session.commit()
     return redirect(url_for('view_room', room_name=room.name))
 
+@app.route('/api/create_account', methods=['POST'])
+@auth
+def create_account():
+    rd = request.get_json(True)
+    if User.query.filter_by(name=rd['name']).first() is not None:
+        abort(409)
+    
+    user = User(name=rd['name'], password=rd['password'], role=participant)
+    db.session.add(user)
+    db.session.commit()
+    return jsonify(result='ok')
+
+@app.route('/api/delete_account', methods=['POST'])
+@auth
+def delete_account():
+    rd = request.get_json(True)
+    user = User.query.get_or_404(name=rd['name'])
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify(result='ok')
+    
+@app.route('/api/assign_role', methods=['POST'])
+@auth
+def assign_role():
+    rd = request.get_json(True)
+    
+    user = User.query.get_or_404(name=rd['name'])
+    
+    role = Role.query.get_or_404(name=rd['role'])
+    
+    user.role = role
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify(result='ok')
+
+#TODO edit_role
+
+@app.route('/api/create_role', methods=['POST'])
+@auth
+def create_role():
+    rd = request.get_json(True)
+    
+    #TODO implement the choice of each permission by creating a role
+    role = Role(rd['role'], DEFAULT_PARTICIPANT)
+    db.session.add(role)
+    db.session.commit()
+    return jsonify(result='ok')
+
+@app.route('/api/delete_role', methods=['POST'])
+@auth
+def delete_role():
+    rd = request.get_json(True)
+    
+    role = Role.query.get_or_404(name=rd['role'])
+    db.session.delete(role)
+    db.session.commit()
+    return jsonify(result='ok')
+    
 @app.route('/api/list_rooms')
 @auth('view_room')
 def list_rooms():
@@ -145,6 +203,15 @@ def enter_room(room_name):
     else:
         abort(403)
 
+@app.route('/api/r/<room_name>/leave_room', methods=['POST'])
+@auth
+@room
+def leave_room(room):
+    request.user.rooms.delete(room)
+    db.session.add(request.user)
+    db.session.commit()
+    return jsonify(result='ok')
+    
 @app.route('/api/r/<room_name>')
 @auth
 @room
