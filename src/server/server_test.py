@@ -3,11 +3,22 @@ import time
 from os.path import join, dirname, realpath
 from unittest import TestCase, main
 from tempfile import NamedTemporaryFile, TemporaryDirectory
+from functools import wraps
 from subprocess import *
 import requests as rq
 import atexit
 
+import server
+
 port = 5124
+
+test_endpoints = {}
+def test_for(endpoint):
+    def deco(f):
+        test_endpoints[endpoint] = f
+        return f
+    return deco
+
 
 class ApiTest(TestCase):
     def setUp(self):
@@ -66,12 +77,14 @@ class ApiTest(TestCase):
         self.assertEqual(r.status_code, 404)
 
 
+    @test_for('login')
     def testLogin(self):
         self.denied (rq.post(self.url+'login', json={'uid': 'test1', 'password': 'invalid password'}))
         self.denied (rq.post(self.url+'login', json={'uid': 'test1', 'password': ''}))
         self.denied (rq.post(self.url+'login', json={'uid': '', 'password': 'invalid password'}))
         self.ok     (rq.post(self.url+'login', json={'uid': 'test1', 'password': 'test1'}))
 
+    @test_for('create_room')
     def testCreateRoom(self):
         cred = self.login('user1')
         self.denied     (rq.post(self.url+'create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
@@ -81,6 +94,7 @@ class ApiTest(TestCase):
         self.success    (rq.post(self.url+'create_room', json={'name': 'ünicödeが好き！', 'passkey': 'testpass1'}, cookies=cred))
         self.conflict   (rq.post(self.url+'create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
 
+    @test_for('enter_room')
     def testAccessRoom(self):
         cred = self.login('user1')
         self.notfound(rq.get (self.url+'r/a_room_that_does_not_exist', cookies=cred))
@@ -107,6 +121,7 @@ class ApiTest(TestCase):
         j = r.json()
         self.assertEqual(True, j['user_is_lecturer'])
 
+    @test_for('create_survey')
     def testCreateSurvey(self):
         cred = self.login('user1')
         testsv = {'title': 'test 1', 'options': ['opt1', 'opt2', 'really long opt'*100]}
@@ -115,13 +130,15 @@ class ApiTest(TestCase):
         cred = self.login('lecturer1')
         testsv = {'title': 'test 2', 'options': []}
         self.bad    (rq.post(self.url+'r/test_room_access/create_survey', json=testsv, cookies=cred))
-        testsv = {'title': 'test 3', 'options': ['opt1']}
+        testsv = {'title': 'test 3', 'options': ['opt']}
+        # test for maximum option number
         self.bad    (rq.post(self.url+'r/test_room_access/create_survey', json=testsv, cookies=cred))
-        testsv = {'title': 'test 5', 'options': ['opt1', 'opt2', 'opt3', 'opt4']}
+        testsv = {'title': 'test 5', 'options': ['opt']*32}
         self.ok     (rq.post(self.url+'r/test_room_access/create_survey', json=testsv, cookies=cred))
-        testsv = {'title': 'test 4', 'options': ['opt1', 'opt2', 'opt3', 'opt4', 'opt5']}
+        testsv = {'title': 'test 4', 'options': ['opt']*33}
         self.bad    (rq.post(self.url+'r/test_room_access/create_survey', json=testsv, cookies=cred))
 
+    @test_for('close_survey')
     def testCloseSurvey(self):
         cred = self.login('user1')
         r = rq.get(self.url+'r/test_room_access', cookies=cred)
@@ -134,6 +151,7 @@ class ApiTest(TestCase):
         self.ok      (rq.post(self.url+'r/test_room_access/s/'+str(sid)+'/close', cookies=cred))
         self.notfound(rq.post(self.url+'r/test_room_access/s/123456789/close', cookies=cred))
 
+    @test_for('create_question')
     def testCreateQuestion(self):
         cred = self.login('user2')
         self.denied(rq.post(self.url+'r/test_room_access/create_question', json={'text': 'test 1'}, cookies=cred))
@@ -145,6 +163,7 @@ class ApiTest(TestCase):
         cred = self.login('lecturer1')
         self.ok(rq.post(self.url+'r/test_room_access/create_question', json={'text': 'test 4'}, cookies=cred))
 
+    @test_for('delete_question')
     def testDeleteQuestion(self):
         cred = self.login('user1')
         r = rq.get(self.url+'r/test_room_access', cookies=cred)
@@ -156,6 +175,12 @@ class ApiTest(TestCase):
         cred = self.login('lecturer1')
         self.ok      (rq.post(self.url+'r/test_room_access/q/'+str(qid)+'/delete', cookies=cred))
         self.notfound(rq.post(self.url+'r/test_room_access/q/123456789/delete', cookies=cred))
+    
+    def testUnitTestCoverage(self):
+        """tests whether there is a unit test for every endpoint"""
+        excluded_eps = {'static', 'view_index'}
+        eps = {rule.endpoint for rule in server.app.url_map.iter_rules()} - excluded_eps
+        self.assertSetEqual(eps, set(test_endpoints.keys()))
 
 
 if __name__ == '__main__':

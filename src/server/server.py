@@ -24,9 +24,10 @@ class Perms(Enum):
             manage_lecture,
             create_survey,
             create_room,
+            view_tempo,
             close_survey,
             delete_question
-            ) = tuple(range(12,12+5))
+            ) = tuple(range(12,12+6))
     _admin_only = (
             create_account,
             delete_account,
@@ -36,10 +37,14 @@ class Perms(Enum):
             delete_role
             ) = tuple(range(26,26+6))
 
+    def __repr__(self):
+        return self.name
+
 DEFAULT_PARTICIPANT = Perms._participant.value
 DEFAULT_LECTURER = Perms._participant.value + Perms._lecturer.value
+ALL_PERMS = Perms._participant.value + Perms._lecturer.value + Perms._admin_only.value
 
-MAX_OPTS = 4
+MAX_OPTS = 32
 
 app = Flask(__name__)
 app.debug = True
@@ -167,29 +172,34 @@ def assign_role():
     db.session.commit()
     return jsonify(result='ok')
 
-#TODO edit_role
-
 @app.route('/api/create_role', methods=['POST'])
 @auth
 def create_role():
-    rd = request.get_json(True)
-    
-    #TODO implement the choice of each permission by creating a role
-    role = Role(rd['role'], DEFAULT_PARTICIPANT)
-    db.session.add(role)
+    db.session.add(Role(request.get_json(True)['role'], DEFAULT_PARTICIPANT))
     db.session.commit()
+    return jsonify(result='ok')
+
+@app.route('/api/edit_role/<role_name>', methods=['POST'])
+@auth
+def edit_role(role_name):
+    role = request.get_json(True)['perms']
+    role.perms = Role.query.get_or_404(name=role_name)
+    db.session.add(role)
+    db.session.commit(role)
     return jsonify(result='ok')
 
 @app.route('/api/delete_role', methods=['POST'])
 @auth
 def delete_role():
-    rd = request.get_json(True)
-    
-    role = Role.query.get_or_404(name=rd['role'])
-    db.session.delete(role)
+    db.session.delete(Role.query.get_or_404(name=request.get_json(True)['role']))
     db.session.commit()
     return jsonify(result='ok')
-    
+
+@app.route('/api/list_permissions')
+@auth
+def list_permissions():
+    return jsonify(result='ok', perms=request.user.role)
+
 @app.route('/api/list_rooms')
 @auth('view_room')
 def list_rooms():
@@ -300,14 +310,18 @@ def delete_question(room, question_id):
 @app.route('/api/r/<room_name>/t/<action>', methods=['POST'])
 @auth
 @room
-def vote_tempo(room_id, action):
-    room = Room.query.get_or_404(room_id)
-
+def vote_tempo(action):
     if action not in ('up', 'down'):
         abort(400)
 
-    publish(room.name, 'tempo', action)
+    publish(request.room.name, 'tempo', action)
     return jsonify(result='ok')
+
+@app.route('/api/r/<room_name>/t', methods=['GET'])
+@auth
+@room
+def view_tempo(action):
+    return jsonify(up=23, down=42) #FIXME
 
 ###################
 
@@ -319,16 +333,38 @@ user_rooms = db.Table('user_rooms',
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
-    permissions = db.Column(db.Integer)
+    _permissions = db.Column(db.Integer)
 
     def __init__(self, name, perms=()):
         self.name = name
-        self.permissions = 0
+        self._permissions = 0
         for perm in perms:
-            self.permissions |= (1<<perm)
+            self._permissions |= (1<<perm)
     
     def __contains__(self, perm):
-        return bool(self.permissions & (1<<perm.value))
+        return bool(self._permissions & (1<<perm.value))
+    
+    def __iter__(self):
+        return (Perms(p) for p in ALL_PERMS if Perms(p) in self)
+
+    def __delitem__(self, perm):
+        self._permissions &= ~(1<<perm.value)
+
+    def add(self, perm):
+        self._permissions |= (1<<perm.value)
+
+    @property
+    def perms(self):
+        """returns a list of strings of permission names"""
+        return [str(p) for p in self]
+
+    @perms.setter
+    def perms(self, newperms):
+        """sets permissions of self by list of strings of permission names"""
+        np = 0
+        for p in newperms:
+            np |= (1<<getattr(Perms, p).value)
+        self._permissions = np
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -448,6 +484,33 @@ class Question(db.Model):
                 'text': self.text,
                 'votes': self.total_votes()}
 
+
+def create_test_db():
+    db.create_all()
+    participant = Role('participant', DEFAULT_PARTICIPANT)
+    lecturer    = Role('lecturer', DEFAULT_LECTURER)
+    db.session.add(lecturer)
+    db.session.add(participant)
+    if app.debug:
+        user1 = User(name='user1', role=participant)
+        user2 = User(name='user2', role=participant)
+        lecturer1 = User(name='lecturer1', role=lecturer)
+        room_a = Room('test_room_access', lecturer1, '')
+        user1.rooms.append(room_a)
+        lecturer1.rooms.append(room_a)
+        room_d = Room('test_room_deny', lecturer1, 'test_passkey')
+        lecturer1.rooms.append(room_d)
+        sv = Survey('test survey', ['opt1', 'opt2', 'opt3'], room_a)
+        q = Question('test question', room_a, user1)
+        db.session.add(user1)
+        db.session.add(user2)
+        db.session.add(lecturer1)
+        db.session.add(room_a)
+        db.session.add(room_d)
+        db.session.add(sv)
+        db.session.add(q)
+    db.session.commit()
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -461,30 +524,7 @@ if __name__ == '__main__':
         app.debug = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+args.database
     if args.create_db:
-        db.create_all()
-        participant = Role('participant', DEFAULT_PARTICIPANT)
-        lecturer    = Role('lecturer', DEFAULT_LECTURER)
-        db.session.add(lecturer)
-        db.session.add(participant)
-        if app.debug:
-            user1 = User(name='user1', role=participant)
-            user2 = User(name='user2', role=participant)
-            lecturer1 = User(name='lecturer1', role=lecturer)
-            room_a = Room('test_room_access', lecturer1, '')
-            user1.rooms.append(room_a)
-            lecturer1.rooms.append(room_a)
-            room_d = Room('test_room_deny', lecturer1, 'test_passkey')
-            lecturer1.rooms.append(room_d)
-            sv = Survey('test survey', ['opt1', 'opt2', 'opt3'], room_a)
-            q = Question('test question', room_a, user1)
-            db.session.add(user1)
-            db.session.add(user2)
-            db.session.add(lecturer1)
-            db.session.add(room_a)
-            db.session.add(room_d)
-            db.session.add(sv)
-            db.session.add(q)
-        db.session.commit()
+        create_test_db()
     else:
         if args.port is not None:
             app.config['SERVER_NAME'] = 'localhost:'+str(args.port)
