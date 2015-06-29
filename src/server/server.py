@@ -112,6 +112,15 @@ def login():
     else:
         abort(403)
 
+@app.route('/api/logout')
+@auth
+def logout():
+    user = request.user
+    user.rooms.delete.all()
+    request.user = None
+    db.session.add(request.user)
+    db.session.commit()    
+
 @app.route('/api/create_room', methods=['POST'])
 @auth
 def create_room():
