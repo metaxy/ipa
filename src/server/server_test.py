@@ -10,10 +10,8 @@ import requests as rq
 
 import server
 
-port = 5124
 @contextmanager
 def testserver():
-    global port
     with NamedTemporaryFile() as dbfile:
         script = join(dirname(realpath(__file__)), 'server.py')
         testdb = dbfile.name
@@ -22,15 +20,13 @@ def testserver():
                 stdout=DEVNULL, stderr=DEVNULL
         )
 
-        url = 'http://localhost:'+str(port)+'/api/'
-        server = Popen(['python3', script, '--debug', '--no-reload', '--database', testdb, '--port', str(port)],
+        server = Popen(['python3', script, '--debug', '--no-reload', '--database', testdb, '--port', '5124'],
                 stdout=DEVNULL, stderr=DEVNULL,
         )
 
-        port += 1
         time.sleep(1) # wait for server to start up
         try:
-            yield url
+            yield 'http://localhost:5124/api/'
         finally:
             server.terminate()
             server.wait()
