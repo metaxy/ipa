@@ -64,6 +64,35 @@ class ApiTest(TestCase):
     def notfound(self, r):
         self.assertEqual(r.status_code, 404)
 
+    def json_match(self, d, pat, _path='root'):
+        if isinstance(pat, dict):
+            for k,v in pat.items():
+                self.assertIn(k, d)
+                self.json_match(d[k], v, _path+'/'+k)
+            self.json_match(len(d), len(pat))
+        elif isinstance(pat, list):
+            self.json_match(len(d), len(pat))
+            for i,(a,b) in enumerate(zip(d, pat)):
+                self.json_match(a, b, _path+'['+str(i)+']')
+        elif isinstance(pat, set):
+            self.json_match(set(d), pat)
+        elif callable(pat):
+            self.json_match(pat(d), True)
+        else:
+            try:
+                self.assertEqual(pat, d)
+            except AssertionError as e:
+                e.args = (e.args[0]+' at path: '+_path,)
+                raise e
+
+
+    def testUnitTestCoverage(self):
+        with testserver() as url:
+            """tests whether there is a unit test for every endpoint"""
+            excluded_eps = {'static', 'view_index'}
+            eps = {rule.endpoint for rule in server.app.url_map.iter_rules()} - excluded_eps
+            self.assertSetEqual(eps, set(test_endpoints.keys()))
+
 
     @test_for('login')
     def testLogin(self):
@@ -170,13 +199,35 @@ class ApiTest(TestCase):
             cred = self.login(url, 'lecturer1')
             self.ok      (rq.post(url+'r/test_room_access/q/'+str(qid)+'/delete', cookies=cred))
             self.notfound(rq.post(url+'r/test_room_access/q/123456789/delete', cookies=cred))
-    
-    def testUnitTestCoverage(self):
+
+    @test_for('list_rooms')
+    def testListRooms(self):
         with testserver() as url:
-            """tests whether there is a unit test for every endpoint"""
-            excluded_eps = {'static', 'view_index'}
-            eps = {rule.endpoint for rule in server.app.url_map.iter_rules()} - excluded_eps
-            self.assertSetEqual(eps, set(test_endpoints.keys()))
+            cred = self.login(url, 'user1')
+            r = rq.get(url+'list_rooms', cookies=cred)
+            self.success(r)
+            self.assertSetEqual(set(r.json()['rooms']), {'test_room_access', 'test_room_deny'})
+
+    @test_for('view_room')
+    def testViewRoom(self):
+        with testserver() as url:
+            cred = self.login(url, 'user1')
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.success(r)
+            self.json_match(r.json(), {
+                    'name': 'test_room_access',
+                    'questions': [{
+                        'id': lambda x: True,
+                        'text': 'test question',
+                        'votes': 0
+                        }],
+                    'surveys': [{
+                        'id': lambda x: True,
+                        'title': 'test survey',
+                        'options': ['opt1', 'opt2', 'opt3']
+                        }],
+                    'user_is_lecturer': False
+                })
 
 
 if __name__ == '__main__':

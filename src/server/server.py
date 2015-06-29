@@ -193,7 +193,7 @@ def delete_role():
 @app.route('/api/list_permissions')
 @auth
 def list_permissions():
-    return jsonify(result='ok', perms=request.user.role)
+    return jsonify(perms=request.user.role)
 
 @app.route('/api/list_rooms')
 @auth('view_room')
