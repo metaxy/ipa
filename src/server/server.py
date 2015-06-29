@@ -115,12 +115,8 @@ def login():
 @app.route('/api/logout')
 @auth
 def logout():
-    user = request.user
-    user.rooms.delete.all()
-    request.user = None
-    db.session.add(request.user)
-    db.session.commit()
-    return redirect('/')
+    del session['uid']
+    return jsonify(result='ok')
 
 @app.route('/api/create_room', methods=['POST'])
 @auth
