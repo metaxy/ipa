@@ -265,13 +265,11 @@ def create_survey(room):
 @room
 def vote_survey(room, survey_id):
     sv = Survey.query.get_or_404(survey_id)
-
-    rd = request.get_json(True)
-    op = int(rd['option'])
-    if not val in range(0, len(sv.options)) and val:
+    opt = int(request.get_json(True)['option'])
+    if not opt in range(len(sv.options)) and opt:
         abort(400)
 
-    sv.cast_vote(request.user, val)
+    sv.cast_vote(request.user, opt)
     return jsonify(result='ok')
 
 @app.route('/api/r/<room_name>/q/<int:question_id>/vote', methods=['POST'])
@@ -420,14 +418,14 @@ class Survey(db.Model):
         self.closed = False
 
     def cast_vote(self, user, option):
-        self.votes.filter_by(uid=user.id).delete()
+        self.votes.filter_by(user_id=user.id).delete()
         vote = Vote(self, user, option)
         db.session.add(vote)
         db.session.commit()
     
     @lru_cache()
     def count_votes(self):
-        res = dict(db.session.query(func.count(Vote.option), Vote.option)\
+        res = dict(db.session.query(Vote.option, func.count(Vote.option))\
                 .filter(Vote.survey_id==self.id)\
                 .group_by(Vote.option)\
                 .all())
@@ -442,7 +440,7 @@ class Survey(db.Model):
                     'title': self.title,
                     'options': self.options,
                     'results': self.count_votes(),
-                    'total': self.total_votes}
+                    'total': self.total_votes()}
         else:
             return {'id': self.id,
                     'title': self.title,
@@ -466,7 +464,7 @@ class Question(db.Model):
         self.creator = creator
 
     def cast_vote(self, user):
-        self.votes.filter_by(uid=user.id).delete()
+        self.votes.filter_by(user_id=user.id).delete()
         vote = Vote(self, user)
         db.session.add(vote)
         db.session.commit()
@@ -489,9 +487,11 @@ def create_test_db():
     if app.debug:
         user1 = User(name='user1', role=participant)
         user2 = User(name='user2', role=participant)
+        user3 = User(name='user3', role=participant)
         lecturer1 = User(name='lecturer1', role=lecturer)
         room_a = Room('test_room_access', lecturer1, '')
         user1.rooms.append(room_a)
+        user3.rooms.append(room_a)
         lecturer1.rooms.append(room_a)
         room_d = Room('test_room_deny', lecturer1, 'test_passkey')
         lecturer1.rooms.append(room_d)

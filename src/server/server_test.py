@@ -17,11 +17,11 @@ def testserver():
         testdb = dbfile.name
         
         check_call(['python3', script, '--debug', '--database', testdb, '--create-db'],
-                stdout=DEVNULL, stderr=DEVNULL
+#                stdout=DEVNULL, stderr=DEVNULL
         )
 
         server = Popen(['python3', script, '--debug', '--no-reload', '--database', testdb, '--port', '5124'],
-                stdout=DEVNULL, stderr=DEVNULL,
+#                stdout=DEVNULL, stderr=DEVNULL,
         )
 
         time.sleep(1) # wait for server to start up
@@ -39,30 +39,57 @@ def test_for(endpoint):
     return deco
 
 
+def sample_json(qv=0, sv=None):
+    opts = ['opt1', 'opt2', 'opt3']
+    if sv:
+        foo = {'id': lambda x: True,
+               'title': 'test survey',
+               'options': opts,
+               'results': set(zip(opts, sv)),
+               'total': sum(sv)}
+    else:
+        foo = {'id': lambda x: True,
+               'title': 'test survey',
+               'options': opts}
+    return {
+        'name': 'test_room_access',
+        'questions': [{
+            'id': lambda x: True,
+            'text': 'test question',
+            'votes': qv
+            }],
+        'surveys': [foo],
+        'user_is_lecturer': False
+    }
+
+
 class ApiTest(TestCase):
     def login(self, url, uid='test1'):
         r = rq.post(url+'login', json={'uid': uid, 'password': uid})
         self.ok(r)
         return r.cookies
 
+    def status_code(self, r, status):
+        self.assertEqual(r.status_code, status, r.request.url)
+
     def success(self, r):
-        self.assertEqual(r.status_code, 200)
+        self.status_code(r, 200)
 
     def ok(self, r):
-        self.assertEqual(r.status_code, 200)
+        self.status_code(r, 200)
         self.assertEqual(r.json()['result'], 'ok')
     
     def denied(self, r):
-        self.assertEqual(r.status_code, 403)
+        self.status_code(r, 403)
 
     def conflict(self, r):
-        self.assertEqual(r.status_code, 409)
+        self.status_code(r, 409)
 
     def bad(self, r):
-        self.assertEqual(r.status_code, 400)
+        self.status_code(r, 400)
 
     def notfound(self, r):
-        self.assertEqual(r.status_code, 404)
+        self.status_code(r, 404)
 
     def json_match(self, d, pat, _path='root'):
         if isinstance(pat, dict):
@@ -74,15 +101,16 @@ class ApiTest(TestCase):
             self.json_match(len(d), len(pat))
             for i,(a,b) in enumerate(zip(d, pat)):
                 self.json_match(a, b, _path+'['+str(i)+']')
-        elif isinstance(pat, set):
-            self.json_match(set(d), pat)
+        elif isinstance(pat, set) and not isinstance(d, set):
+            tupset = lambda v: set(v) if not isinstance(v, list) else {tuple(e) for e in v}
+            self.json_match(tupset(d), pat)
         elif callable(pat):
             self.json_match(pat(d), True)
         else:
             try:
-                self.assertEqual(pat, d)
+                self.assertEqual(d, pat)
             except AssertionError as e:
-                e.args = (e.args[0]+' at path: '+_path,)
+                e.args = (e.args[0]+'\nat path: '+_path,)
                 raise e
 
 
@@ -214,20 +242,59 @@ class ApiTest(TestCase):
             cred = self.login(url, 'user1')
             r = rq.get(url+'r/test_room_access', cookies=cred)
             self.success(r)
-            self.json_match(r.json(), {
-                    'name': 'test_room_access',
-                    'questions': [{
-                        'id': lambda x: True,
-                        'text': 'test question',
-                        'votes': 0
-                        }],
-                    'surveys': [{
-                        'id': lambda x: True,
-                        'title': 'test survey',
-                        'options': ['opt1', 'opt2', 'opt3']
-                        }],
-                    'user_is_lecturer': False
-                })
+            self.json_match(r.json(), sample_json())
+
+    @test_for('vote_question')
+    def testVoteQuestion(self):
+        with testserver() as url:
+            cred = self.login(url, 'user1')
+            # Vote
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.success(r)
+            qid = r.json()['questions'][0]['id']
+            self.ok(rq.post(url+'r/test_room_access/q/'+str(qid)+'/vote', cookies=cred))
+            # Check result
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.success(r)
+            self.json_match(r.json(), sample_json(qv=1))
+            # Vote again
+            self.ok(rq.post(url+'r/test_room_access/q/'+str(qid)+'/vote', cookies=cred))
+            # Check result again
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.success(r)
+            self.json_match(r.json(), sample_json(qv=1))
+
+    @test_for('vote_survey')
+    @test_for('close_survey')
+    def testVoteCloseSurvey(self):
+        for i,j,votes in (
+                ((0,),  (),     (1,0,0)),
+                ((0,0), (),     (1,0,0)),
+                ((0,),  (0,),   (2,0,0)),
+                ((1,2), (1,),   (0,1,1)),
+                ((2,),  (2,),   (0,0,2))):
+            with testserver() as url:
+                cred1 = self.login(url, 'user1')
+                cred3 = self.login(url, 'user3')
+                lcred = self.login(url, 'lecturer1')
+                # Vote
+                r = rq.get(url+'r/test_room_access', cookies=cred1)
+                self.success(r)
+                sid = r.json()['surveys'][0]['id']
+                for opt in i:
+                    self.ok(rq.post(url+'r/test_room_access/s/'+str(sid)+'/vote', json={'option': opt}, cookies=cred1))
+                for opt in j:
+                    self.ok(rq.post(url+'r/test_room_access/s/'+str(sid)+'/vote', json={'option': opt}, cookies=cred3))
+                # Close survey
+                self.ok(rq.post(url+'r/test_room_access/s/'+str(sid)+'/close', cookies=lcred))
+                # Check result
+                r = rq.get(url+'r/test_room_access', cookies=cred1)
+                self.success(r)
+                try:
+                    self.json_match(r.json(), sample_json(sv=votes))
+                except AssertionError as e:
+                    e.args = (e.args[0]+'\nparams: {} {}\nexpected: {}\nresponse: {}'.format(i,j,votes,r.text),)
+                    raise e
 
 
 if __name__ == '__main__':
