@@ -47,7 +47,6 @@ ALL_PERMS = Perms._participant.value + Perms._lecturer.value + Perms._admin_only
 MAX_OPTS = 32
 
 app = Flask(__name__)
-app.debug = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://hieronymus:2dS3v5l6oaG2RpEne1CH7WT9UyEwe5nk@localhost/hieronymus'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PUSH_STREAM_URL'] = 'http://localhost/pub'
@@ -162,12 +161,8 @@ def delete_account():
 @auth
 def assign_role():
     rd = request.get_json(True)
-    
     user = User.query.get_or_404(name=rd['name'])
-    
-    role = Role.query.get_or_404(name=rd['role'])
-    
-    user.role = role
+    user.role = Role.query.get_or_404(name=rd['role'])
     db.session.delete(user)
     db.session.commit()
     return jsonify(result='ok')
@@ -515,6 +510,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('-n', '--no-reload', action='store_true')
     parser.add_argument('-b', '--database', type=str, default='test.db')
     parser.add_argument('-c', '--create-db', action='store_true')
     parser.add_argument('-p', '--port', type=int, default=None)
@@ -528,4 +524,4 @@ if __name__ == '__main__':
     else:
         if args.port is not None:
             app.config['SERVER_NAME'] = 'localhost:'+str(args.port)
-        app.run()
+        app.run(use_reloader=not args.no_reload)
