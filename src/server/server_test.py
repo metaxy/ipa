@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 from functools import wraps
 from contextlib import contextmanager
 from subprocess import *
+import textwrap
 import requests as rq
 
 import server
@@ -32,9 +33,9 @@ def testserver():
             server.wait()
 
 test_endpoints = {}
-def test_for(endpoint):
+def test_for(endpoint, doc=""):
     def deco(f):
-        test_endpoints[endpoint] = f
+        test_endpoints[endpoint] = (f, textwrap.dedent(doc).lstrip('\n').rstrip())
         return f
     return deco
 
@@ -121,9 +122,15 @@ class ApiTest(TestCase):
             eps = {rule.endpoint for rule in server.app.url_map.iter_rules()} - excluded_eps
             self.assertSetEqual(eps, set(test_endpoints.keys()))
 
-    #json Parameter : {'uid' : 'name_of_the_user_for_login', 'password' : 'password_of_this_user'}
-    #json Return    : {'return' : 'ok'}
-    @test_for('login')
+    @test_for('login', """
+    :HTTP method:    POST
+    :Request JSON:
+      ::
+
+        {'uid':      'name_of_the_user_for_login',
+         'password': 'password_of_this_user'}
+
+    :Response JSON:  ``{'return': 'ok'}`` """)
     def testLogin(self):
         with testserver() as url:
             self.denied (rq.post(url+'login', json={'uid': 'test1', 'password': 'invalid password'}))
@@ -131,9 +138,15 @@ class ApiTest(TestCase):
             self.denied (rq.post(url+'login', json={'uid': '', 'password': 'invalid password'}))
             self.ok     (rq.post(url+'login', json={'uid': 'test1', 'password': 'test1'}))
     
-    #json Parameter : {'name' : 'name_of_the_user_you_want_to_create', 'password' : 'password_for_this_user'}
-    #json Return    : {'return' : 'ok'}
-    @test_for('create_account')    
+    @test_for('create_account', """
+    :HTTP method:    POST
+    :Request JSON:
+      ::
+
+        {'name':     'name_of_the_user_you_want_to_create',
+         'password': 'password_for_this_user'}
+
+    :Response JSON:  ``{'return': 'ok'}`` """)
     def testCreateAccount(self):
         cred = self.login('user1')
         self.denied   (rq.post(self.url+'create_account', json={'name': 'create_test1', 'password': 'create_test1'}, cookies=cred))
@@ -145,9 +158,14 @@ class ApiTest(TestCase):
         self.ok       (rq.post(self.url+'create_account', json={'name': 'create_test1', 'password': ''}, cookies=cred))
         self.conflict (rq.post(self.url+'create_account', json={'name': 'create_test1', 'password': ''}, cookies=cred))
     
-    #json Parameter : {'name' : 'name_of_the_user', 'role' : 'role_you_want_the_user_to_assign' }
-    #json Return    : {'return' : 'ok'}
-    @test_for('assign_role') 
+    @test_for('assign_role', """ 
+    :HTTP method:    POST
+    :Request JSON:
+      ::
+
+        {'name': 'name_of_the_user',
+         'role': 'role_you_want_the_user_to_assign'}
+    :Response JSON:  ``{'return': 'ok'}`` """)
     def testAssignRole(self):
         cred = self.login('user1')
         self.denied   (rq.post(self.url+'assign_role', json={'name': 'lecturer1', 'role': 'participant'}, cookies=cred))
@@ -160,9 +178,12 @@ class ApiTest(TestCase):
         self.notfound (rq.post(self.url+'assign_role', json={'name': 'user1', 'role': 'role_do_not_exist'}, cookies=cred))
         self.ok       (rq.post(self.url+'assign_role', json={'name': 'user1', 'role': 'participant'}, cookies=cred))
     
-    #json Parameter : {'role' : 'role_you_want_to_create' } -> By default are the permissions set to DEFAULT_PARTICIPANT
-    #json Return    : {'return' : 'ok'}
-    @test_for('create_role') 
+    @test_for('create_role', """
+    :HTTP method:   POST
+    :Request JSON:  ``{'role': 'role_you_want_to_create' }``
+
+                    The permissions set to DEFAULT_PARTICIPANT on role creation
+    :Response JSON: ``{'return': 'ok'}`` """)
     def testCreateRole(self):
         cred = self.login('user1')
         self.denied   (rq.post(self.url+'create_role', json={'role': 'role_test'}, cookies=cred))
@@ -174,9 +195,14 @@ class ApiTest(TestCase):
         self.ok       (rq.post(self.url+'create_role', json={'role': 'role_test'}, cookies=cred))
         self.conflict (rq.post(self.url+'create_role', json={'role': 'role_test'}, cookies=cred))
     
-    #json Parameter : {'name' : 'name_of_the_room_you_want_to_create', 'passkey' : 'passkey_for_this_room'}
-    #json Return    : None -> redirect to view_room 
-    @test_for('create_room')
+    @test_for('create_room', """
+    :HTTP method:   POST
+    :Request JSON:
+      ::
+
+        {'name':   'name_of_the_room_you_want_to_create',
+        'passkey': 'passkey_for_this_room'}
+    :Response:      redirect to view_room """)
     def testCreateRoom(self):
         with testserver() as url:
             cred = self.login(url, 'user1')
@@ -344,5 +370,39 @@ class ApiTest(TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-a', '--apidoc',
+            help="Generate API endpoint doc as restructuredtext",
+            type=str,
+            nargs='?',
+            default=False)
+    args = parser.parse_args()
+    if args.apidoc is not False:
+        with open(args.apidoc or 'api-doc.rst', 'w') as f:
+            f.write(textwrap.dedent("""\
+                    Server REST API documentation
+                    =============================
+                    
+                    .. WARNING! THIS FILE IS GENERATED AUTOMATICALLY FROM 'server.py' AND *WILL* BE
+                    .. OVERWRITTEN. DO NOT EDIT!
+                    """))
+            for endpoint, (_f, doc) in sorted(test_endpoints.items()):
+                routes = """
+                    """.join('``'+rule.rule+'``'
+                            for rule in server.app.url_map.iter_rules()
+                            if rule.endpoint == endpoint)
+                f.write(textwrap.dedent("""
+                    {endpoint}
+                    {endpoint_ul}
+
+                    :Routes:
+                        {routes}
+                    {doc}
+                    """).format(endpoint=endpoint,
+                        endpoint_ul="="*len(endpoint),
+                        routes=routes,
+                        doc=doc))
+    else: 
+        main()
 

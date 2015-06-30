@@ -3,3 +3,7 @@
 .*.swp
 src/server/venv
 src/server/test.db
+*.aux
+*.log
+*.out
+src/server/*.tex
