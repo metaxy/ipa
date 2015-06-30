@@ -121,7 +121,8 @@ class ApiTest(TestCase):
             eps = {rule.endpoint for rule in server.app.url_map.iter_rules()} - excluded_eps
             self.assertSetEqual(eps, set(test_endpoints.keys()))
 
-
+    #json Parameter : {'uid' : 'name_of_the_user_for_login', 'password' : 'password_of_this_user'}
+    #json Return    : {'return' : 'ok'}
     @test_for('login')
     def testLogin(self):
         with testserver() as url:
@@ -129,7 +130,52 @@ class ApiTest(TestCase):
             self.denied (rq.post(url+'login', json={'uid': 'test1', 'password': ''}))
             self.denied (rq.post(url+'login', json={'uid': '', 'password': 'invalid password'}))
             self.ok     (rq.post(url+'login', json={'uid': 'test1', 'password': 'test1'}))
-
+    
+    #json Parameter : {'name' : 'name_of_the_user_you_want_to_create', 'password' : 'password_for_this_user'}
+    #json Return    : {'return' : 'ok'}
+    @test_for('create_account')    
+    def testCreateAccount(self):
+        cred = self.login('user1')
+        self.denied   (rq.post(self.url+'create_account', json={'name': 'create_test1', 'password': 'create_test1'}, cookies=cred))
+        
+        cred = self.login('lecturer1')
+        self.denied   (rq.post(self.url+'create_account', json={'name': 'create_test1', 'password': 'create_test1'}, cookies=cred))
+        
+        cred = self.login('admin')
+        self.ok       (rq.post(self.url+'create_account', json={'name': 'create_test1', 'password': ''}, cookies=cred))
+        self.conflict (rq.post(self.url+'create_account', json={'name': 'create_test1', 'password': ''}, cookies=cred))
+    
+    #json Parameter : {'name' : 'name_of_the_user', 'role' : 'role_you_want_the_user_to_assign' }
+    #json Return    : {'return' : 'ok'}
+    @test_for('assign_role') 
+    def testAssignRole(self):
+        cred = self.login('user1')
+        self.denied   (rq.post(self.url+'assign_role', json={'name': 'lecturer1', 'role': 'participant'}, cookies=cred))
+        
+        cred = self.login('lecturer1')
+        self.denied   (rq.post(self.url+'assign_role', json={'name': 'user1', 'role': 'participant'}, cookies=cred))
+        
+        cred = self.login('admin')
+        self.notfound (rq.post(self.url+'assign_role', json={'name': 'user_do_not_exist', 'role': 'participant'}, cookies=cred))
+        self.notfound (rq.post(self.url+'assign_role', json={'name': 'user1', 'role': 'role_do_not_exist'}, cookies=cred))
+        self.ok       (rq.post(self.url+'assign_role', json={'name': 'user1', 'role': 'participant'}, cookies=cred))
+    
+    #json Parameter : {'role' : 'role_you_want_to_create' } -> By default are the permissions set to DEFAULT_PARTICIPANT
+    #json Return    : {'return' : 'ok'}
+    @test_for('create_role') 
+    def testCreateRole(self):
+        cred = self.login('user1')
+        self.denied   (rq.post(self.url+'create_role', json={'role': 'role_test'}, cookies=cred))
+        
+        cred = self.login('lecturer1')
+        self.denied   (rq.post(self.url+'create_role', json={'role': 'role_test'}, cookies=cred))
+        
+        cred = self.login('admin')
+        self.ok       (rq.post(self.url+'create_role', json={'role': 'role_test'}, cookies=cred))
+        self.conflict (rq.post(self.url+'create_role', json={'role': 'role_test'}, cookies=cred))
+    
+    #json Parameter : {'name' : 'name_of_the_room_you_want_to_create', 'passkey' : 'passkey_for_this_room'}
+    #json Return    : None -> redirect to view_room 
     @test_for('create_room')
     def testCreateRoom(self):
         with testserver() as url:

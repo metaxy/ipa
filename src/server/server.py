@@ -163,14 +163,19 @@ def assign_role():
     rd = request.get_json(True)
     user = User.query.get_or_404(name=rd['name'])
     user.role = Role.query.get_or_404(name=rd['role'])
-    db.session.delete(user)
+    db.session.add(user)
     db.session.commit()
     return jsonify(result='ok')
 
 @app.route('/api/create_role', methods=['POST'])
 @auth
 def create_role():
-    db.session.add(Role(request.get_json(True)['role'], DEFAULT_PARTICIPANT))
+    rd = request.get_json(True)
+    
+    if Role.query.filter_by(name=rd['role']).first() is not None:
+        abort(409)
+        
+    db.session.add(Role(rd['role'], DEFAULT_PARTICIPANT))
     db.session.commit()
     return jsonify(result='ok')
 
