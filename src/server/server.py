@@ -527,7 +527,7 @@ if __name__ == '__main__':
         @app.after_request
         def cors_hack(res):
             res.headers['Access-Control-Allow-Origin'] = '*'
-            res.headers['Access-Control-Allow-Headers'] = '*'
+            res.headers['Access-Control-Allow-Headers'] = 'origin,content-type,accept'
             res.headers['Access-Control-Allow-Credentials'] = 'true'
             res.headers['Access-Control-Allow-Methods'] = '*'
             return res
