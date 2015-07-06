@@ -408,7 +408,7 @@ class ApiTest(TestCase):
                 self.ok(rq.post(url+'r/test_room_access/s/'+str(sid)+'/close', cookies=lcred))
                 # Check result
                 r = rq.get(url+'r/test_room_access', cookies=lcred)
-                self.json(r, sample_json('surveys', sv=(0, 0, 0)))
+                self.json(r, sample_json('surveys', sv=votes))
 
     @test_for('close_survey', """
     :HTTP method: POST
