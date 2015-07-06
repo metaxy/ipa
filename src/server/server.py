@@ -4,6 +4,7 @@ import sys
 from functools import wraps, lru_cache
 import json
 from enum import Enum
+from itertools import chain
 
 import requests
 from sqlalchemy import func
@@ -79,14 +80,20 @@ def auth(defaccess_or_fn=None, **kwargs):
                 abort(403)
             user = request.user = User.query.filter_by(name=session['uid']).first()
             if getattr(Perms, kwargs.get(request.method, defaccess_or_fn)) not in user.role:
-                p = getattr(Perms, kwargs.get(request.method, defaccess_or_fn))
                 abort(403)
             return func(*args, **kwargs)
         return wrapper
 
+    def check_perms():
+        for v in chain(kwargs.values(), [defaccess_or_fn]):
+            if getattr(Perms, v, None) is None:
+                print('WARNING: Permission "{}" does not exist!'.format(v))
+
     if type(defaccess_or_fn) == type(auth):
         fn,defaccess_or_fn = defaccess_or_fn,defaccess_or_fn.__name__
+        check_perms()
         return deco(fn)
+    check_perms()
     return deco
 
 def perform_login(pw_form, pw):
