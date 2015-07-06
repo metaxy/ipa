@@ -162,9 +162,9 @@ class ApiTest(TestCase):
     :HTTP method:    POST
     :Request JSON:
       ::
-
-        {'name': 'name_of_the_user',
-         'role': 'role_you_want_the_user_to_assign'}
+      
+        {'name' : 'name_of_the_user',
+         'role' : 'role_you_want_the_user_to_assign'}
     :Response JSON:  ``{'return': 'ok'}`` """)
     def testAssignRole(self):
         cred = self.login('user1')
@@ -200,8 +200,8 @@ class ApiTest(TestCase):
     :Request JSON:
       ::
 
-        {'name':   'name_of_the_room_you_want_to_create',
-        'passkey': 'passkey_for_this_room'}
+        {'name'   :   'name_of_the_room_you_want_to_create',
+         'passkey':   'passkey_for_this_room'}
     :Response:      redirect to view_room """)
     def testCreateRoom(self):
         with testserver() as url:
@@ -213,7 +213,18 @@ class ApiTest(TestCase):
             self.success    (rq.post(url+'create_room', json={'name': 'ünicödeが好き！', 'passkey': 'testpass1'}, cookies=cred))
             self.conflict   (rq.post(url+'create_room', json={'name': 'create_test1', 'passkey': ''}, cookies=cred))
 
-    @test_for('enter_room')
+    @test_for('enter_room', """
+    :HTTP method:   GET
+    
+    :Request:       None
+    
+    :Response JSON: 
+        ::
+        
+            {'name'             : 'name_of_the_room',
+             'questions'        : 'questions_of_the_room',
+             'surveys'          : 'survey_of_the_room',
+             'user_is_lecturer' : 'is_the_user_the_lecturer?'}""")
     def testAccessRoom(self):
         with testserver() as url:
             cred = self.login(url, 'user1')
@@ -241,7 +252,14 @@ class ApiTest(TestCase):
             j = r.json()
             self.assertEqual(True, j['user_is_lecturer'])
 
-    @test_for('create_survey')
+    @test_for('create_survey', """
+    :HTTP method:   POST
+    :Request JSON:  
+        ::
+        
+            {'title'   : 'title_for_the_new_survey',
+             'options' : 'list_of_options_for_the_survey'}
+    :Response JSON: ``{'return': 'ok'}`` """)
     def testCreateSurvey(self):
         with testserver() as url:
             cred = self.login(url, 'user1')
@@ -259,7 +277,11 @@ class ApiTest(TestCase):
             testsv = {'title': 'test 4', 'options': ['opt']*33}
             self.bad    (rq.post(url+'r/test_room_access/create_survey', json=testsv, cookies=cred))
 
-    @test_for('close_survey')
+    @test_for('close_survey', """
+    :HTTP method:   POST
+    :Request JSON:  None
+
+    :Response JSON: ``{'return': 'ok'}`` """)
     def testCloseSurvey(self):
         with testserver() as url:
             cred = self.login(url, 'user1')
@@ -273,7 +295,11 @@ class ApiTest(TestCase):
             self.ok      (rq.post(url+'r/test_room_access/s/'+str(sid)+'/close', cookies=cred))
             self.notfound(rq.post(url+'r/test_room_access/s/123456789/close', cookies=cred))
 
-    @test_for('create_question')
+    @test_for('create_question', """
+    :HTTP method:   POST
+    :Request JSON:  ``{'text': 'text_for_the_question' }``
+
+    :Response JSON: ``{'return': 'ok'}`` """)
     def testCreateQuestion(self):
         with testserver() as url:
             cred = self.login(url, 'user2')
@@ -286,7 +312,11 @@ class ApiTest(TestCase):
             cred = self.login(url, 'lecturer1')
             self.ok(rq.post(url+'r/test_room_access/create_question', json={'text': 'test 4'}, cookies=cred))
 
-    @test_for('delete_question')
+    @test_for('delete_question', """
+    :HTTP method:   POST
+    :Request JSON:  None
+
+    :Response JSON: ``{'return': 'ok'}`` """)
     def testDeleteQuestion(self):
         with testserver() as url:
             cred = self.login(url, 'user1')
@@ -300,7 +330,11 @@ class ApiTest(TestCase):
             self.ok      (rq.post(url+'r/test_room_access/q/'+str(qid)+'/delete', cookies=cred))
             self.notfound(rq.post(url+'r/test_room_access/q/123456789/delete', cookies=cred))
 
-    @test_for('list_rooms')
+    @test_for('list_rooms', """
+    :HTTP method:   GET
+    :Request:       None
+
+    :Response JSON: ``{'rooms': 'list_of_all_rooms'}`` """)
     def testListRooms(self):
         with testserver() as url:
             cred = self.login(url, 'user1')
@@ -308,7 +342,18 @@ class ApiTest(TestCase):
             self.success(r)
             self.assertSetEqual(set(r.json()['rooms']), {'test_room_access', 'test_room_deny'})
 
-    @test_for('view_room')
+    @test_for('view_room', """
+    :HTTP method:   GET
+    
+    :Request:       None
+    
+    :Response JSON: 
+        ::
+        
+            {'name'             : 'name_of_the_room',
+             'questions'        : 'questions_of_the_room',
+             'surveys'          : 'survey_of_the_room',
+             'user_is_lecturer' : 'is_the_user_the_lecturer?'}""")
     def testViewRoom(self):
         with testserver() as url:
             cred = self.login(url, 'user1')
@@ -316,7 +361,12 @@ class ApiTest(TestCase):
             self.success(r)
             self.json_match(r.json(), sample_json())
 
-    @test_for('vote_question')
+    @test_for('vote_question', """
+    :HTTP method:   POST
+    
+    :Request JSON:  None
+    
+    :Response JSON: ``{'result' : 'ok'}``""")
     def testVoteQuestion(self):
         with testserver() as url:
             cred = self.login(url, 'user1')
@@ -336,8 +386,18 @@ class ApiTest(TestCase):
             self.success(r)
             self.json_match(r.json(), sample_json(qv=1))
 
-    @test_for('vote_survey')
-    @test_for('close_survey')
+    @test_for('vote_survey', """
+    :HTTP method:   POST
+    
+    :Request JSON:  ``{'options': 'list_of_all_options'}`` 
+    
+    :Response JSON: ``{'result' : 'ok'}``""")
+    @test_for('close_survey', """
+    :HTTP method:   POST
+    
+    :Request JSON:  None
+    
+    :Response JSON: ``{'result' : 'ok'}``""")
     def testVoteCloseSurvey(self):
         for i,j,votes in (
                 ((0,),  (),     (1,0,0)),
