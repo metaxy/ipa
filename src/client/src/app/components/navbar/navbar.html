@@ -1,7 +1,7 @@
 <md-toolbar flex class="navbar md-whiteframe-z1" ng-controller="NavbarCtrl as navbarCtrl">
   <div class="md-toolbar-tools" flex layout="row">
     <!--h2>{{$root.siteTitle}}</h2-->
-    <md-button ui-sref="home"class="md-icon-button" aria-label="Settings">
+    <md-button ui-sref="home" class="md-icon-button" aria-label="Settings">
       <fa name="home" size="2"></fa>
     </md-button>
     <md-button ui-sref="user" class="md-icon-button" ng-if="acl.can('create_account') || acl.can('delete_account')">

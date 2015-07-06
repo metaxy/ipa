@@ -1,33 +1,24 @@
 'use strict';
-export default function LoginCtrl(LfAcl, $state, Account, Shout) {
-  this.processLogin = (resp) => {
-    Account.roles({'user_id': resp.user.id})
-      .$promise.then((resp) => {
-        LfAcl.setRights(resp.roles);
-        $state.go('home');
-    });
-  }
+export default function LoginCtrl(LfAcl, $state, ApiUrl, Shout, $http) {
   
   this.login = (username, password) => {
-    Account.login({rememberMe: true},{email: username, password: password}
-    )
-    .$promise.then(
-      this.processLogin,
-      (err) => {
-        Account.create({email: username, password: password}).$promise
-        .then(
-          (ok) => {
-            Account.login({rememberMe: true},{email: username, password: password}).$promise.then(
-              this.processLogin,
-              (err) => Shout.vError(err)
-            );
-          },
-          (err) => {
-            Shout.vError(err);
+    $http.post(ApiUrl+'/login', {uid : username, password: password})
+      .success(() => {
+         $http.get(ApiUrl+'/list_permissions')
+         .success((data) => {
+           LfAcl.setRights(LfAcl.student);
+           $state.go('home');
+         })
+         .error(() => {
+            LfAcl.setRights(LfAcl.allRights);
+            $state.go('home');
           }
-       );
-      }
-    );
+         );
+      })
+      .error((err) => {
+        LfAcl.setRights([]);
+        Shout.error(err);
+      });
   }
   
   

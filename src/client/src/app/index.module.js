@@ -32,8 +32,9 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
   .controller('SurveyViewCtrl', SurveyViewCtrl)
   .controller('SurveyVoteCtrl', SurveyVoteCtrl)
   .controller('AdminCtrl', AdminCtrl)
-    .provider('LfAcl', LfAcl)
-    .factory('Shout', Shout)
+  .provider('LfAcl', LfAcl)
+  .factory('Shout', Shout)
+  .constant('ApiUrl', 'http://localhost:5000/api')
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $mdThemingProvider, $httpProvider) {
     $httpProvider.defaults.withCredentials = true;
     $mdThemingProvider.theme('default')
@@ -48,7 +49,7 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
         templateUrl: 'app/main/main.html',
         controller: 'MainCtrl as mainCtrl',
         acl: {
-          needRights: ['$authenticated']
+          needRights: ['view_index']
         }
       })
       .state('room', {
@@ -115,30 +116,14 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
           needRights: []
         }
       })
-      .state('admin', {
-        url: '/admin',
-        templateUrl: 'app/admin/admin.html',
-        controller: 'AdminCtrl as adminctrl',
-        acl: {
-          needRights: []
-        }
-      });
 
     $urlRouterProvider.otherwise('/');
     //$locationProvider.html5Mode(true)
   })
 
-  .run(($rootScope, $state, LfAcl, $http) => {
+  .run(($rootScope, $state, LfAcl, $http, ApiUrl) => {
     $rootScope.$state = $state; // state to be accessed from view
-   //a LfAcl.setRightsPromise(Account.roles({'user_id': LoopBackAuth.currentUserId}).$promise);//lp
-    LfAcl.setRights([]);//!lp
-    $http.post('http://localhost:5000/api/login', {uid : "user1", password: "user1"})
-      .success((ad) => {
-        $http.get('http://localhost:5000/api/r/test_room_access')
-          .success((a) => console.log(a))
-          .error((a) => console.log(a))
-      })
-      .error((asd) => console.log(asd));
+    LfAcl.setRightsPromise($http.get(ApiUrl+'/list_permissions'));
     $rootScope.acl = LfAcl;
   });
 
