@@ -5,6 +5,7 @@ from functools import wraps, lru_cache
 import json
 from enum import Enum
 from itertools import chain
+from warnings import warn
 
 import requests
 from sqlalchemy import func
@@ -87,7 +88,7 @@ def auth(defaccess_or_fn=None, **kwargs):
     def check_perms():
         for v in chain(kwargs.values(), [defaccess_or_fn]):
             if getattr(Perms, v, None) is None:
-                print('WARNING: Permission "{}" does not exist!'.format(v))
+                warn('Permission "{}" does not exist!'.format(v))
 
     if type(defaccess_or_fn) == type(auth):
         fn,defaccess_or_fn = defaccess_or_fn,defaccess_or_fn.__name__
