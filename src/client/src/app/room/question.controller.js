@@ -1,19 +1,19 @@
 'use strict';
-export default function QuestionCtrl($scope, $stateParams, Room, $interval, Account, Question) {
+export default function QuestionCtrl($scope, $stateParams, $interval) {
   this.questions = [];
   this.my_questions = [];
 
   this.addQuestion = (text) => {
-    Room.questions.create({id: $stateParams.roomId}, {text: text}).$promise
-    .then((data) => this.questions.push(data));
+    /*Room.questions.create({id: $stateParams.roomId}, {text: text}).$promise
+    .then((data) => this.questions.push(data));*/
   }
 
   this.reload = () => {
-    Room.questions({id: $stateParams.roomId, filter: { order: 'votes DESC'}}).$promise
+   /* Room.questions({id: $stateParams.roomId, filter: { order: 'votes DESC'}}).$promise
       .then((data) => this.questions = data);
 
     Account.voted().$promise
-      .then((data) => this.my_questions = data.questions);
+      .then((data) => this.my_questions = data.questions);*/
   }
 
   this.voted = (question_id) => {
@@ -29,12 +29,11 @@ export default function QuestionCtrl($scope, $stateParams, Room, $interval, Acco
 
   this.vote = (question_id) => {
     this.my_questions.push(question_id);
-    Account.vote({question_id: question_id});
+   //todo: Account.vote({question_id: question_id});
   }
 
   this.delete = (question_id) => {
-    Question.deleteById({id: question_id})
-      .$promise.then(() => this.reload());
+   //todo: Question.deleteById({id: question_id}).$promise.then(() => this.reload());
   }
 
   this.reload();

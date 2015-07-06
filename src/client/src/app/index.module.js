@@ -1,4 +1,3 @@
-import './components/lb-services';
 import MainCtrl from './main/main.controller';
 import NavbarCtrl from './components/navbar/navbar.controller';
 import Shout from './components/shout';
@@ -18,7 +17,7 @@ import AdminCtrl from './admin/admin.controller';
 
 angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
                'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial',
-               'lbServices', 'picardy.fontawesome', 'n3-pie-chart', 'toastr'])
+                'picardy.fontawesome', 'n3-pie-chart', 'toastr'])
   .controller('MainCtrl', MainCtrl)
   .controller('NavbarCtrl', NavbarCtrl)
   .controller('LoginCtrl', LoginCtrl)
@@ -128,11 +127,13 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
     //$locationProvider.html5Mode(true)
   })
 
-  .run(($rootScope, $state, LfAcl) => {
+  .run(($rootScope, $state, LfAcl, $http) => {
     $rootScope.$state = $state; // state to be accessed from view
-    $rootScope.accessToken = LoopBackAuth.accessTokenId; //lp
-    LfAcl.setRightsPromise(Account.roles({'user_id': LoopBackAuth.currentUserId}).$promise);//lp
-    //LfAcl.setRights([]);//!lp
+   //a LfAcl.setRightsPromise(Account.roles({'user_id': LoopBackAuth.currentUserId}).$promise);//lp
+    LfAcl.setRights([]);//!lp
+    $http.post('http://localhost:5000/api/login', {uid : "asd", password: "asd"})
+      .success((ad) => console.log(ad))
+      .error((asd) => console.log(asd));
     $rootScope.acl = LfAcl;
   });
 

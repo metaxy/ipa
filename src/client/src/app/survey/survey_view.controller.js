@@ -1,5 +1,5 @@
 'use strict';
-export default function SurveyCtrl(Room, Survey, $stateParams, $rootScope, $scope) {
+export default function SurveyCtrl($stateParams, $rootScope, $scope) {
   this.open = false;
   this.data = [];
   this.opt = {thickness: 20};
@@ -26,11 +26,11 @@ export default function SurveyCtrl(Room, Survey, $stateParams, $rootScope, $scop
   this.toggleSurvey = () => {
     this.survey.open = !this.survey.open;
     this.open = !this.open;
-    Survey.upsert(this.survey);
+    //todo: Survey.upsert(this.survey);
   }
-  
+
   this.update = () => {
-    Survey.findById({id: $stateParams.surveyId}).$promise.then((data) => {
+    /*Survey.findById({id: $stateParams.surveyId}).$promise.then((data) => {
       this.survey = data;
       this.open = data.open;
       $rootScope.siteTitle = "Umfrage: " + data.title;
@@ -43,10 +43,10 @@ export default function SurveyCtrl(Room, Survey, $stateParams, $rootScope, $scop
         data.push({label: d.title, value: d.votes, color : this.colors[i]});
       });
       this.data = data;
-     
-    });
+
+    });*/
   }
   this.update();
-  
-  
+
+
 }
