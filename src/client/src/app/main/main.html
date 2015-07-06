@@ -1,0 +1,32 @@
+<div ng-if="acl.can('join_lecture')">
+  <md-card ng-if="mainCtrl.my_rooms.length > 0">
+    <md-card-content>
+    <h3> Meine Räume </h3>
+    <md-list>
+      <md-list-item ng-repeat="room in mainCtrl.my_rooms">
+        <a ui-sref="room({roomId: room.id})">
+          <fa name="arrow-right"> </fa>
+          {{room.name}}
+        </a>
+      <md-divider></md-divider>
+      </md-list-item>
+    </md-list>
+    <md-card-content>
+  </md-card>
+
+  <md-card>
+    <md-card-content>
+      <h3>Veranstaltung beitreten</h3>
+      <md-input-container flex>
+        <md-select placeholder="Raumname" ng-model="room_name">
+          <md-option ng-repeat="room in mainCtrl.room_names" value="{{room}}">{{room}}</md-option>
+        </md-select>
+      </md-input-container>
+      <md-input-container flex>
+        <label>Password</label>
+        <input type="password" ng-model="room_password">
+      </md-input-container>
+      <md-button class="md-primary md-raised" ng-click="mainCtrl.joinRoom(room_name, room_password)">beitreten</md-button>
+  <md-card-content>
+  </md-card>
+</div>
