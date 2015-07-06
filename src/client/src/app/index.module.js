@@ -34,7 +34,8 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
   .controller('AdminCtrl', AdminCtrl)
     .provider('LfAcl', LfAcl)
     .factory('Shout', Shout)
-  .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $mdThemingProvider) {
+  .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $mdThemingProvider, $httpProvider) {
+    $httpProvider.defaults.withCredentials = true;
     $mdThemingProvider.theme('default')
     .primaryPalette('blue')
     .accentPalette('pink')
@@ -131,8 +132,12 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
     $rootScope.$state = $state; // state to be accessed from view
    //a LfAcl.setRightsPromise(Account.roles({'user_id': LoopBackAuth.currentUserId}).$promise);//lp
     LfAcl.setRights([]);//!lp
-    $http.post('http://localhost:5000/api/login', {uid : "asd", password: "asd"})
-      .success((ad) => console.log(ad))
+    $http.post('http://localhost:5000/api/login', {uid : "user1", password: "user1"})
+      .success((ad) => {
+        $http.get('http://localhost:5000/api/r/test_room_access')
+          .success((a) => console.log(a))
+          .error((a) => console.log(a))
+      })
       .error((asd) => console.log(asd));
     $rootScope.acl = LfAcl;
   });
