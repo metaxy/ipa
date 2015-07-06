@@ -1,26 +1,138 @@
-/* global malarkey:false, toastr:false, moment:false */
-import config from './index.config';
+import './components/lb-services';
+import MainCtrl from './main/main.controller';
+import NavbarCtrl from './components/navbar/navbar.controller';
+import Shout from './components/shout';
+import LfAcl from './auth/acl';
+import LoginCtrl from './auth/login.controller';
+import RoomCtrl from './room/room.controller';
+import RoomSurveyCtrl from './room/survey.controller';
+import SurveyVoteCtrl from './room/survey_vote.controller';
+import SpeedCtrl from './room/speed.controller';
+import QuestionCtrl from './room/question.controller';
+import UserCtrl from './user/user.controller';
+import UserEditCtrl from './user/user_edit.controller';
+import SurveyCtrl from './survey/survey.controller';
+import SurveysCtrl from './survey/surveys.controller';
+import SurveyViewCtrl from './survey/survey_view.controller';
+import AdminCtrl from './admin/admin.controller';
 
-import routerConfig from './index.route';
+angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
+               'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial',
+               'lbServices', 'picardy.fontawesome', 'n3-pie-chart', 'toastr'])
+  .controller('MainCtrl', MainCtrl)
+  .controller('NavbarCtrl', NavbarCtrl)
+  .controller('LoginCtrl', LoginCtrl)
+  .controller('RoomCtrl', RoomCtrl)
+  .controller('RoomSurveyCtrl', RoomSurveyCtrl)
+  .controller('SpeedCtrl', SpeedCtrl)
+  .controller('QuestionCtrl', QuestionCtrl)
+  .controller('UserCtrl', UserCtrl)
+  .controller('UserEditCtrl', UserEditCtrl)
+  .controller('SurveyCtrl', SurveyCtrl)
+  .controller('SurveysCtrl', SurveysCtrl)
+  .controller('SurveyViewCtrl', SurveyViewCtrl)
+  .controller('SurveyVoteCtrl', SurveyVoteCtrl)
+  .controller('AdminCtrl', AdminCtrl)
+    .provider('LfAcl', LfAcl)
+    .factory('Shout', Shout)
+  .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $mdThemingProvider) {
+    $mdThemingProvider.theme('default')
+    .primaryPalette('blue')
+    .accentPalette('pink')
+    .warnPalette('red')
+    .backgroundPalette('grey');
 
-import runBlock from './index.run';
-import MainController from './main/main.controller';
-import GithubContributorService from '../app/components/githubContributor/githubContributor.service';
-import WebDevTecService from '../app/components/webDevTec/webDevTec.service';
-import NavbarDirective from '../app/components/navbar/navbar.directive';
-import MalarkeyDirective from '../app/components/malarkey/malarkey.directive';
+    $stateProvider
+      .state('home', {
+        url: '/',
+        templateUrl: 'app/main/main.html',
+        controller: 'MainCtrl as mainCtrl',
+        acl: {
+          needRights: ['$authenticated']
+        }
+      })
+      .state('room', {
+        url: '/room/:roomId',
+        templateUrl: 'app/room/room.html',
+        controller: 'RoomCtrl as roomCtrl',
+        acl: {
+          needRights: ['join_lecture']
+        }
+      })
+      .state('room_survey', {
+        url: '/room_survey/:surveyId',
+        templateUrl: 'app/room/survey_vote.html',
+        controller: 'SurveyVoteCtrl as surveyCtrl',
+        acl: {
+          needRights: ['join_lecture']
+        }
+      })
+      .state('surveys', {
+        url: '/surveys',
+        templateUrl: 'app/survey/surveys.html',
+        controller: 'SurveysCtrl as surveysCtrl',
+        acl: {
+          needRights: ['create_survey']
+        }
+      })
+      .state('survey', {
+        url: '/survey/room/:roomId',
+        templateUrl: 'app/survey/survey.html',
+        controller: 'SurveyCtrl as surveyCtrl',
+        acl: {
+          needRights: ['create_survey']
+        }
+      })
+      .state('survey_view', {
+        url: '/survey/view/:surveyId',
+        templateUrl: 'app/survey/survey_view.html',
+        controller: 'SurveyViewCtrl as surveyCtrl',
+        acl: {
+          needRights: ['create_survey']
+        }
+      })
+      .state('user', {
+        url: '/user',
+        templateUrl: 'app/user/user.html',
+        controller: 'UserCtrl as userCtrl',
+        acl: {
+          needRights: ['create_account']
+        }
+      })
+      .state('user_edit', {
+        url: '/user_edit/:userId',
+        templateUrl: 'app/user/user_edit.html',
+        controller: 'UserEditCtrl as userCtrl',
+        acl: {
+          needRights: ['delete_account']
+        }
+      })
+      .state('login', {
+        url: '/login',
+        templateUrl: 'app/auth/login.html',
+        controller: 'LoginCtrl as loginCtrl',
+        acl: {
+          needRights: []
+        }
+      })
+      .state('admin', {
+        url: '/admin',
+        templateUrl: 'app/admin/admin.html',
+        controller: 'AdminCtrl as adminctrl',
+        acl: {
+          needRights: []
+        }
+      });
 
-angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch', 'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial'])
-  .constant('malarkey', malarkey)
-  .constant('toastr', toastr)
-  .constant('moment', moment)
-  .config(config)
+    $urlRouterProvider.otherwise('/');
+    //$locationProvider.html5Mode(true)
+  })
 
-  .config(routerConfig)
+  .run(($rootScope, $state, LfAcl, LoopBackAuth, Account) => {
+    $rootScope.$state = $state; // state to be accessed from view
+    $rootScope.accessToken = LoopBackAuth.accessTokenId; //lp
+    LfAcl.setRightsPromise(Account.roles({'user_id': LoopBackAuth.currentUserId}).$promise);//lp
+    //LfAcl.setRights([]);//!lp
+    $rootScope.acl = LfAcl;
+  });
 
-  .run(runBlock)
-  .service('githubContributor', GithubContributorService)
-  .service('webDevTec', WebDevTecService)
-  .controller('MainController', MainController)
-  .directive('acmeNavbar', () => new NavbarDirective())
-  .directive('acmeMalarkey', () => new MalarkeyDirective(malarkey));
