@@ -526,7 +526,10 @@ if __name__ == '__main__':
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+args.database
         @app.after_request
         def cors_hack(res):
-            res.headers["Access-Control-Allow-Origin"] = "*"
+            res.headers['Access-Control-Allow-Origin'] = '*'
+            res.headers['Access-Control-Allow-Headers'] = '*'
+            res.headers['Access-Control-Allow-Credentials'] = 'true'
+            res.headers['Access-Control-Allow-Methods'] = '*'
             return res
     if args.create_db:
         create_test_db()
