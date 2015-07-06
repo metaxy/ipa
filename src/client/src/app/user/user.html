@@ -1,0 +1,13 @@
+<md-card>
+  <md-card-content>
+    <h3> Benutzer </h3>
+    <md-list>
+      <md-list-item ng-repeat="user in userCtrl.users">
+       <a ui-sref="user_edit({userId: user.id})">{{user.email}}</a>
+       <md-button flex=10 ng-if="acl.can('delete_account')" ng-click="userCtrl.delete(user.id)">
+          <fa name="trash"></fa>
+       </md-button>
+      </md-liste-item>
+    </md-list>
+  </md-card-content>
+</md-card>

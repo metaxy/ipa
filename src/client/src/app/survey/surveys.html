@@ -1,0 +1,10 @@
+<md-card>
+  <md-card-content>
+    <h3> Meine Räume </h3>
+    <ul>
+      <li ng-repeat="room in surveysCtrl.my_rooms">
+      <a ui-sref="survey({roomId: room.id})">{{room.name}}</a>
+      </li>
+    </ul>
+  </md-card-content>
+</md-card>

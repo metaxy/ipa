@@ -1,0 +1,14 @@
+<md-card>
+	<md-card-content>
+		<h3>Veranstaltung erstellen</h3>
+		<md-input-container flex>
+	    <label>Name</label>
+	    <input ng-model="name">
+	  </md-input-container>
+	  <md-input-container flex>
+	    <label>Kennwort</label>
+	    <input type="password" ng-model="password">
+	  </md-input-container>
+	  <md-button class="md-raised md-primary" ng-click="adminCtrl.erstellen(name, password)">erstellen</md-button>
+	</md-card-content>
+</md-card>

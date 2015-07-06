@@ -1,0 +1,27 @@
+<div flex layout="column">
+  <md-card>
+    <md-card-content flex layout="row">
+      <div flex="33">
+        Optionen:
+        <md-list>
+          <md-list-item ng-repeat="option in surveyCtrl.options">
+            <div class="question-votes-cricle">
+              {{option.votes}}
+            </div>
+            {{option.title}}
+          </md-list-item>
+        </md-list>
+      </div>
+      <div flex="66">
+        <pie-chart style="height: 300px" flex data="surveyCtrl.data" options="surveyCtrl.opt"></pie-chart>
+      </div>
+    </md-card-content>
+  </md-card>
+  
+  <div layout="row" flex layout-align="end center">
+    <md-button type="button" class="md-fab" ng-click="surveyCtrl.toggleSurvey()">
+      <fa name="{{surveyCtrl.buttonIcon()}}"> </fa>
+    </md-button>
+  </div>
+
+</div>

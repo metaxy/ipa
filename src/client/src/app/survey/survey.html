@@ -1,0 +1,52 @@
+<div flex layout="column">
+  <md-card>
+    <md-card-content>
+      <h3> Verfügbare Umfragen</h3>
+      <ul>
+        <li ng-repeat="survey in surveyCtrl.surveys">
+          <a ui-sref="survey_view({surveyId: survey.id})">{{survey.title}}</a>
+          
+          <md-button ng-click="surveyCtrl.delete(survey.id)"><fa name="trash"></fa></md-button>
+        </li>
+      </ul>
+    </md-card-content>
+  </md-card>
+
+  <div layout="row" flex layout-align="end center">
+    <md-button type="button" class="md-fab" ng-click="surveyCtrl.startNewSurvey()">
+      <fa name="plus"> </fa>
+    </md-button>
+  </div>
+
+  <md-card ng-if="surveyCtrl.visible_create_from">
+  <md-card-content>
+  <h3> Neue Umfrage </h3>
+  <md-input-container flex>
+        <label> Titel </label>
+        <input type="text" ng-model="title"></input>
+  </md-input-container>
+
+
+  <md-card layout-padding>
+  <md-card-content>
+  <h4>Optionen:</h4>
+  <div ng-repeat="option in surveyCtrl.options track by $index">
+    <md-input-container flex>
+        <label> Option {{$index+1}} </label>
+        <input type="text" ng-model="option.title"></input>
+    </md-input-container>
+  </div>
+
+  <md-button type="button" class="" ng-click="surveyCtrl.newOption()">
+  <fa name="plus"> </fa> Neue Option
+  </md-button>
+  </md-card-content>
+  </md-card>
+
+  <md-button type="button" class="md-raised md-primary" ng-click="surveyCtrl.newSurvey(title)">
+  <fa name="save"> </fa> Erstellen
+  </md-button>
+  <md-card-content>
+  </md-card>
+
+</div>

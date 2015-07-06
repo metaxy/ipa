@@ -1,0 +1,40 @@
+<div flex ng-controller="QuestionCtrl as questionCtrl" layout="column" layout-gt-md="row">
+  <md-card flex>
+    <md-card-content>
+      <h2 ng-if="questionCtrl.questions.length > 0"> Bisherige Fragen </h2>
+      <h2 ng-if="questionCtrl.questions.length < 1"> Keine Fragen</h2>
+      <md-list ng-if="questionCtrl.questions.length > 0">
+        <md-list-item flex ng-repeat="question in questionCtrl.questions" layout="row">
+          <div flex="10">
+            <div class="question-votes-cricle">
+              {{question.votes}}
+            </div>
+          </div>
+          <span flex> {{question.text}}</span>
+          
+          <md-button flex=10 ng-click="questionCtrl.vote(question.id)">
+            <fa size="1" name="{{questionCtrl.voteIcon(question.id)}}" ></fa>
+          </md-button>
+          
+          <md-button flex=10 ng-if="acl.can('delete_question')" ng-click="questionCtrl.delete(question.id)">
+            <fa name="trash"></fa>
+          </md-button>
+        </md-list-item>
+      </md-list>
+    </md-card-content>
+  </md-card>
+
+  <md-card flex ng-if="acl.can('create_question')">
+    <md-card-content>
+      <h2> Neue Frage stellen</h2>
+      <div flex layout="row">
+        <md-input-container flex>
+          <label> Neue Frage </label>
+          <input type="text" ng-model="new_question"></input>
+        </md-input-container>
+        <md-button class="md-raised md-primary" ng-click="questionCtrl.addQuestion(new_question)">stellen</md-button>
+      </div>
+    </md-card-content>
+  </md-card>
+
+</div>

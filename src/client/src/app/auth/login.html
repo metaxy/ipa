@@ -1,0 +1,36 @@
+<div class="tabsdemoDynamicHeight" ng-app="MyApp">
+  <md-content class="md-padding">
+    <md-tabs md-dynamic-height="" md-border-bottom="">
+      <md-tab label="Teilnehmer">
+        <md-content class="md-padding">
+	        <h1 class="login-header"> LiFi | Live Feedback</h3>
+  	      <div class="login-form">
+						<h3> Anmeldung | Regestrierung<h3>
+					  <md-input-container flex>
+					    <label>EMail</label>
+					    <input ng-model="email">
+					  </md-input-container>
+					  <md-input-container flex>
+					    <label >Passwort</label>
+					    <input type="password" ng-model="password">
+					  </md-input-container>
+
+					  <md-button class="md-raised md-primary" ng-click="loginCtrl.login(email, password)">Login</md-button>
+					</div>
+        </md-content>
+      </md-tab>
+
+      <md-tab label="Dozent">
+        <md-content class="md-padding">
+        	<div ng-include="'app/dozent/dozent.html'"></div>
+        </md-content>
+      </md-tab>
+
+      <md-tab label="Admin">
+        <md-content class="md-padding">
+          <div ng-include="'app/admin/admin.html'"></div>
+        </md-content>
+      </md-tab>
+    </md-tabs>
+  </md-content>
+</div>
