@@ -143,7 +143,7 @@ def create_account():
     if User.query.filter_by(name=rd['name']).first() is not None:
         abort(409)
     
-    user = User(name=rd['name'], password=rd['password'], role=participant)
+    user = User(name=rd['name'], password=rd['password'], role=Role.query.filter_by(name='participant').one())
     db.session.add(user)
     db.session.commit()
     return jsonify(result='ok')
@@ -152,7 +152,7 @@ def create_account():
 @auth
 def delete_account():
     rd = request.get_json(True)
-    user = User.query.get_or_404(name=rd['name'])
+    user = User.query.filter_by(name=rd['name']).first_or_404()
     db.session.delete(user)
     db.session.commit()
     return jsonify(result='ok')
@@ -161,8 +161,8 @@ def delete_account():
 @auth
 def assign_role():
     rd = request.get_json(True)
-    user = User.query.get_or_404(name=rd['name'])
-    user.role = Role.query.get_or_404(name=rd['role'])
+    user = User.query.filter_by(name=rd['name']).first_or_404()
+    user.role = Role.query.filter_by(name=rd['role']).first_or_404()
     db.session.add(user)
     db.session.commit()
     return jsonify(result='ok')
@@ -183,7 +183,7 @@ def create_role():
 @auth
 def edit_role(role_name):
     role = request.get_json(True)['perms']
-    role.perms = Role.query.get_or_404(name=role_name)
+    role.perms = Role.query.filter_by(name=role_name).first_or_404()
     db.session.add(role)
     db.session.commit(role)
     return jsonify(result='ok')
@@ -191,7 +191,7 @@ def edit_role(role_name):
 @app.route('/api/delete_role', methods=['POST'])
 @auth
 def delete_role():
-    db.session.delete(Role.query.get_or_404(name=request.get_json(True)['role']))
+    db.session.delete(Role.query.filter_by(name=request.get_json(True)['role'])).first_or_404()
     db.session.commit()
     return jsonify(result='ok')
 
@@ -487,6 +487,7 @@ def create_test_db():
     db.create_all()
     participant = Role('participant', DEFAULT_PARTICIPANT)
     lecturer    = Role('lecturer', DEFAULT_LECTURER)
+    admin       = Role('admin', ALL_PERMS)
     db.session.add(lecturer)
     db.session.add(participant)
     if app.debug:
@@ -494,6 +495,7 @@ def create_test_db():
         user2 = User(name='user2', role=participant)
         user3 = User(name='user3', role=participant)
         lecturer1 = User(name='lecturer1', role=lecturer)
+        admin1 = User(name='admin', role=admin)
         room_a = Room('test_room_access', lecturer1, '')
         user1.rooms.append(room_a)
         user3.rooms.append(room_a)
@@ -505,6 +507,7 @@ def create_test_db():
         db.session.add(user1)
         db.session.add(user2)
         db.session.add(lecturer1)
+        db.session.add(admin1)
         db.session.add(room_a)
         db.session.add(room_d)
         db.session.add(sv)
