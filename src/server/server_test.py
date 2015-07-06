@@ -196,7 +196,7 @@ class ApiTest(TestCase):
     :HTTP method:   POST
     :Request JSON:  ``{'role': 'role_you_want_to_create' }``
 
-                    The permissions set to DEFAULT_PARTICIPANT on role creation
+                    The permissions are set to ``DEFAULT_PARTICIPANT`` on role creation
     :Response JSON: ``{'return': 'ok'}`` """)
     def testCreateRole(self):
         with testserver() as url:
@@ -242,8 +242,10 @@ class ApiTest(TestCase):
     @test_for('create_survey', """
     :HTTP method:   POST
     :Request JSON: 
-            {"title":   "test 1",
-             "options": ["Something", "Option 2", "This is an example"]}
+      ::
+
+        {"title":   "test 1",
+         "options": ["Something", "Option 2", "This is an example"]}
     :Response JSON: ``{"result": "ok"}`` """)
     def testCreateSurvey(self):
         with testserver() as url:

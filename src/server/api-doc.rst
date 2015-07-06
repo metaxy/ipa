@@ -57,7 +57,7 @@ create_role
 :HTTP method:   POST
 :Request JSON:  ``{'role': 'role_you_want_to_create' }``
 
-                The permissions set to DEFAULT_PARTICIPANT on role creation
+                The permissions are set to ``DEFAULT_PARTICIPANT`` on role creation
 :Response JSON: ``{'return': 'ok'}``
 
 create_room
@@ -80,8 +80,10 @@ create_survey
     ``/api/r/<room_name>/create_survey``
 :HTTP method:   POST
 :Request JSON: 
-        {"title":   "test 1",
-         "options": ["Something", "Option 2", "This is an example"]}
+  ::
+
+    {"title":   "test 1",
+     "options": ["Something", "Option 2", "This is an example"]}
 :Response JSON: ``{"result": "ok"}``
 
 delete_question
