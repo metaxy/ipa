@@ -381,7 +381,7 @@ class ApiTest(TestCase):
             r = rq.get(url+'r/test_room_access', cookies=cred)
             self.json(r, sample_json('questions', qv=1))
 
-    @test_for('vote_survey', """)
+    @test_for('vote_survey', """
     :HTTP method:   POST
     :Request JSON:  ``{"option": 3}``
     :Response JSON: ``{"result": "ok"}`` """)

@@ -22,11 +22,9 @@ close_survey
 
 :Routes:
     ``/api/r/<room_name>/s/<int:survey_id>/close``
-:HTTP method:   POST
-
-:Request JSON:  None
-
-:Response JSON: ``{'result' : 'ok'}``
+:HTTP method: POST
+:Request POST data: None
+:Response JSON: ``{"result": "ok"}``
 
 create_account
 ==============
@@ -48,9 +46,8 @@ create_question
 :Routes:
     ``/api/r/<room_name>/create_question``
 :HTTP method:   POST
-:Request JSON:  ``{'text': 'text_for_the_question' }``
-
-:Response JSON: ``{'return': 'ok'}``
+:Request JSON:  ``{"text": "How do this works?"}``
+:Response JSON: ``{"result": "ok"}``
 
 create_role
 ===========
@@ -82,39 +79,28 @@ create_survey
 :Routes:
     ``/api/r/<room_name>/create_survey``
 :HTTP method:   POST
-:Request JSON:  
-    ::
-
-        {'title'   : 'title_for_the_new_survey',
-         'options' : 'list_of_options_for_the_survey'}
-:Response JSON: ``{'return': 'ok'}``
+:Request JSON: 
+        {"title":   "test 1",
+         "options": ["Something", "Option 2", "This is an example"]}
+:Response JSON: ``{"result": "ok"}``
 
 delete_question
 ===============
 
 :Routes:
     ``/api/r/<room_name>/q/<int:question_id>/delete``
-:HTTP method:   POST
-:Request JSON:  None
-
-:Response JSON: ``{'return': 'ok'}``
+:HTTP method:       POST
+:Request POST data: None
+:Response JSON:     ``{"result": "ok"}``
 
 enter_room
 ==========
 
 :Routes:
     ``/api/r/<room_name>/enter``
-:HTTP method:   GET
-
-:Request:       None
-
-:Response JSON: 
-    ::
-
-        {'name'             : 'name_of_the_room',
-         'questions'        : 'questions_of_the_room',
-         'surveys'          : 'survey_of_the_room',
-         'user_is_lecturer' : 'is_the_user_the_lecturer?'}
+:HTTP method:   POST
+:Request JSON:  ``{"passkey": "passkey_for_this_room"}``
+:Response JSON: ``{"result": "ok"}``
 
 list_rooms
 ==========
@@ -122,9 +108,7 @@ list_rooms
 :Routes:
     ``/api/list_rooms``
 :HTTP method:   GET
-:Request:       None
-
-:Response JSON: ``{'rooms': 'list_of_all_rooms'}``
+:Response JSON: ``{"rooms": ["some_room", "another_room"]}``
 
 login
 =====
@@ -146,27 +130,34 @@ view_room
 :Routes:
     ``/api/r/<room_name>``
 :HTTP method:   GET
+:Response JSON:
+  ::
 
-:Request:       None
-
-:Response JSON: 
-    ::
-
-        {'name'             : 'name_of_the_room',
-         'questions'        : 'questions_of_the_room',
-         'surveys'          : 'survey_of_the_room',
-         'user_is_lecturer' : 'is_the_user_the_lecturer?'}
+    {"name": "some_test_room"
+     "questions": [{
+           "id": ignore,
+           "text": "test question",
+           "votes": 23
+        }],
+     "surveys": [
+        {"id": 1,
+         "title": "Open survey",
+         "options": ["foo", "bar", "third option"]}
+        {"id": 2,
+         "title": "Closed survey",
+         "options": ["baz", "something"],
+         "results": [["baz", 23], ["something", 42]]),
+         "total": 65}],
+     "user_is_lecturer": False}
 
 vote_question
 =============
 
 :Routes:
     ``/api/r/<room_name>/q/<int:question_id>/vote``
-:HTTP method:   POST
-
-:Request JSON:  None
-
-:Response JSON: ``{'result' : 'ok'}``
+:HTTP method: POST
+:Request POST data: None
+:Response JSON: ``{"result": "ok"}``
 
 vote_survey
 ===========
@@ -174,7 +165,5 @@ vote_survey
 :Routes:
     ``/api/r/<room_name>/s/<int:survey_id>/vote``
 :HTTP method:   POST
-
-:Request JSON:  ``{'options': 'list_of_all_options'}`` 
-
-:Response JSON: ``{'result' : 'ok'}``
+:Request JSON:  ``{"option": 3}``
+:Response JSON: ``{"result": "ok"}``
