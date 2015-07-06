@@ -128,7 +128,7 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
     //$locationProvider.html5Mode(true)
   })
 
-  .run(($rootScope, $state, LfAcl, LoopBackAuth, Account) => {
+  .run(($rootScope, $state, LfAcl) => {
     $rootScope.$state = $state; // state to be accessed from view
     $rootScope.accessToken = LoopBackAuth.accessTokenId; //lp
     LfAcl.setRightsPromise(Account.roles({'user_id': LoopBackAuth.currentUserId}).$promise);//lp

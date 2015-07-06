@@ -15,3 +15,6 @@ Zum Loslegen, einfach folgendes eingeben:
   vagrant up
 
 
+Dev Python
+==============
+sudo apt-get install python3 python3-requests python3-flask-sqlalchemy
