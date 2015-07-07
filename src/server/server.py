@@ -529,7 +529,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--no-reload', action='store_true')
     parser.add_argument('-b', '--database', type=str, default='test.db')
     parser.add_argument('-c', '--create-db', action='store_true')
-    parser.add_argument('-p', '--port', type=int, default=None)
+    parser.add_argument('-p', '--port', type=int, default=8080)
     args = parser.parse_args()
 
     if args.debug:
