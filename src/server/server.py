@@ -548,5 +548,4 @@ if __name__ == '__main__':
     else:
         if args.port is not None:
             app.config['SERVER_NAME'] = 'localhost:'+str(args.port)
-        app.run(use_reloader=not args.no_reload)
-
+        app.run(uhost='0.0.0.0',use_reloader=not args.no_reload)
