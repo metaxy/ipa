@@ -238,6 +238,19 @@ class ApiTest(TestCase):
             self.denied (rq.get (url+'r/test_room_deny', cookies=cred))
             self.ok     (rq.post(url+'r/test_room_deny/enter', json={'passkey': 'test_passkey'}, cookies=cred))
             self.success(rq.get (url+'r/test_room_deny', cookies=cred))
+            
+    @test_for('leave_room', """
+    :HTTP method:        POST
+    :Request POST data:  None
+    :Response JSON:      ``{"result": "ok"}`` """)
+    def TestLeaveRoom(self):
+        with testserver() as url:
+            cred = self.login(url, 'user1')
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.success(r)
+            
+            self.ok     (rq.post(url+'r/test_room_access/leave_room', cookies=cred))
+            
 
     @test_for('create_survey', """
     :HTTP method:   POST

@@ -101,7 +101,7 @@ def perform_login(pw_form, pw):
     return pw_form==pw
 
 ######################
-
+        
 @app.route('/')
 @auth
 def view_index():
@@ -125,7 +125,7 @@ def login():
         abort(403)
 
 @app.route('/api/logout')
-@auth
+@auth('view_index')
 def logout():
     del session['uid']
     return jsonify(result='ok')
@@ -228,7 +228,7 @@ def enter_room(room_name):
         abort(403)
 
 @app.route('/api/r/<room_name>/leave_room', methods=['POST'])
-@auth
+@auth('view_room')
 @room
 def leave_room(room):
     request.user.rooms.delete(room)
@@ -490,7 +490,14 @@ class Question(db.Model):
                 'text': self.text,
                 'votes': self.total_votes()}
 
-
+@app.after_request
+def cors_hack(res):
+    res.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    res.headers['Access-Control-Allow-Headers'] = 'origin,content-type,accept'
+    res.headers['Access-Control-Allow-Credentials'] = 'true'
+    res.headers['Access-Control-Allow-Methods'] = '*'
+    return res
+    
 def create_test_db():
     db.create_all()
     participant = Role('participant', DEFAULT_PARTICIPANT)
@@ -531,21 +538,15 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--create-db', action='store_true')
     parser.add_argument('-p', '--port', type=int, default=8080)
     args = parser.parse_args()
-    @app.after_request
-    def cors_hack(res):
-        res.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-        res.headers['Access-Control-Allow-Headers'] = 'origin,content-type,accept'
-        res.headers['Access-Control-Allow-Credentials'] = 'true'
-        res.headers['Access-Control-Allow-Methods'] = '*'
-        return res
 
     if args.debug:
         app.debug = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+args.database
-    
+            
     if args.create_db:
         create_test_db()
     else:
         if args.port is not None:
             app.config['SERVER_NAME'] = 'localhost:'+str(args.port)
         app.run(use_reloader=not args.no_reload)
+
