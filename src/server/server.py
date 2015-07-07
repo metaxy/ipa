@@ -531,17 +531,18 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--create-db', action='store_true')
     parser.add_argument('-p', '--port', type=int, default=8080)
     args = parser.parse_args()
+    @app.after_request
+    def cors_hack(res):
+        res.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+        res.headers['Access-Control-Allow-Headers'] = 'origin,content-type,accept'
+        res.headers['Access-Control-Allow-Credentials'] = 'true'
+        res.headers['Access-Control-Allow-Methods'] = '*'
+        return res
 
     if args.debug:
         app.debug = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+args.database
-        @app.after_request
-        def cors_hack(res):
-            res.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-            res.headers['Access-Control-Allow-Headers'] = 'origin,content-type,accept'
-            res.headers['Access-Control-Allow-Credentials'] = 'true'
-            res.headers['Access-Control-Allow-Methods'] = '*'
-            return res
+    
     if args.create_db:
         create_test_db()
     else:
