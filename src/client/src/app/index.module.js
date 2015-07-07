@@ -34,7 +34,7 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
   .controller('AdminCtrl', AdminCtrl)
   .provider('LfAcl', LfAcl)
   .factory('Shout', Shout)
-  .constant('ApiUrl', 'http://localhost:5000/api')
+  .constant('ApiUrl', 'http://localhost:8080/api')
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $mdThemingProvider, $httpProvider) {
     $httpProvider.defaults.withCredentials = true;
     $mdThemingProvider.theme('default')

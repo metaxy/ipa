@@ -10,8 +10,8 @@ export default function LoginCtrl(LfAcl, $state, ApiUrl, Shout, $http) {
            $state.go('home');
          })
          .error(() => {
-            LfAcl.setRights(LfAcl.allRights);
-            $state.go('home');
+            LfAcl.setRights([]);
+            Shout.error("Could not get permissions");
           }
          );
       })

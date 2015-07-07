@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 export default function LfAcl() {
   var self = {};
- 
+
   self.rights = false;
   self.rightsPromise = false;
   self.redirect = 'login';
@@ -11,10 +11,10 @@ export default function LfAcl() {
   self.contains = (list, item) => _.contains(list, item);
 
   self.isGranted = (actions) =>  _.every(actions, (i) => self.contains(self.rights, i))
- 
+
   self.isNotGranted = (actions) => !self.isGranted(actions);
-  
-  
+
+
   this.$get = ['$q', '$rootScope', '$state', function($q, $rootScope, $state) {
     var acl = {};
 
@@ -26,7 +26,7 @@ export default function LfAcl() {
             'vote_tempo',
             'vote_question',
             'vote_survey']
-            
+
     acl.lecturer = [
             'manage_lecture',
             'create_survey',
@@ -48,8 +48,7 @@ export default function LfAcl() {
       self.rightsPromise
         .then(
           (data) => {
-            self.rights = data.roles;
-            console.log(self.rights);
+            self.rights = data;
             $rootScope.acl = acl;
           },
           (err) => {
@@ -67,14 +66,14 @@ export default function LfAcl() {
         self.rightsPromise
         .success(
           (data) => {
-            self.rights = data.roles;
+            self.rights = data;
             $rootScope.acl = acl;
             acl.changeState(event, toState);
           }
          )
         .error(
           (err) => {
-            self.rights = acl.allRights;
+            self.rights = [];
             $rootScope.acl = acl;
             acl.changeState(event, toState);
           }
@@ -98,8 +97,8 @@ export default function LfAcl() {
       }
     };
 
-    acl.isLoggedOut = () => false /*!self.right || self.right.length == 0*/
-    acl.isLoggedIn = () =>  true /*self.right && self.right.length > 0*/
+    acl.isLoggedOut = () => !self.right || self.right.length == 0
+    acl.isLoggedIn = () =>  self.right && self.right.length > 0
     acl.can = (action) => self.isGranted([action]);
     acl.canAll = (actions) => self.isGranted(actions);
     acl.canAny = (actions) =>  _.any(actions, (i) => self.contains(self.rights, i));
