@@ -28,4 +28,5 @@ ENV HOME /root
 WORKDIR /root
 EXPOSE 8080
 # Define default command.
-CMD python3 /root/server.py -d 
+RUN python3 /root/server.py --create-db -d
+CMD ["python3","/root/server.py","-d"] 
