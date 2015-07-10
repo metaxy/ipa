@@ -55,6 +55,14 @@ app.config['PUSH_STREAM_URL'] = 'http://localhost/pub'
 app.secret_key = 'jMHF20JxP49hfTp2rZIDFmRbPCcjw5p9'
 db = SQLAlchemy(app)
 
+@app.after_request
+def cors_hack(res):
+    res.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+    res.headers['Access-Control-Allow-Headers'] = 'origin,content-type,accept'
+    res.headers['Access-Control-Allow-Credentials'] = 'true'
+    res.headers['Access-Control-Allow-Methods'] = '*'
+    return res
+    
 def publish(channel, eventtype, payload):
     return
     requests.post(app.config['PUSH_STREAM_URL'], params={'id': channel},
@@ -117,7 +125,7 @@ def login():
         session['uid'] = rd['uid']
         user = request.user = User.query.filter_by(name=rd['uid']).first()
         if not user:
-            user = User(name=session['uid'], role=Role.query.filter_by(name='participant').one())
+            user = User(name=session['uid'], role=Role.query.filter_by(name='participant').first())
             db.session.add(user)
             db.session.commit()
         return jsonify(result='ok')
@@ -204,10 +212,9 @@ def delete_role():
     return jsonify(result='ok')
 
 @app.route('/api/list_permissions')
-@auth('view_index')
 def list_permissions():
-    return jsonify(perms=request.user.role)
-
+    return jsonify(perms=['view_index','view_room','create_question','join_lecture','vote_tempo','vote_question','vote_survey'])
+    
 @app.route('/api/list_rooms')
 @auth('view_room')
 def list_rooms():
@@ -489,14 +496,6 @@ class Question(db.Model):
         return {'id': self.id,
                 'text': self.text,
                 'votes': self.total_votes()}
-
-@app.after_request
-def cors_hack(res):
-    res.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
-    res.headers['Access-Control-Allow-Headers'] = 'origin,content-type,accept'
-    res.headers['Access-Control-Allow-Credentials'] = 'true'
-    res.headers['Access-Control-Allow-Methods'] = '*'
-    return res
     
 def create_test_db():
     db.create_all()
