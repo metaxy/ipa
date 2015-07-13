@@ -20,8 +20,9 @@ class Perms(Enum):
             join_lecture,
             vote_tempo,
             vote_question,
-            vote_survey
-            ) = tuple(range(7))
+            vote_survey,
+			list_permissions
+            ) = tuple(range(8))
     _lecturer = (
             manage_lecture,
             create_survey,
@@ -212,14 +213,9 @@ def delete_role():
     return jsonify(result='ok')
 
 @app.route('/api/list_permissions')
+@auth
 def list_permissions():
-    return jsonify(perms=['view_index',
-            'view_room', 
-            'create_question',
-            'join_lecture',
-            'vote_tempo',
-            'vote_question',
-            'vote_survey'])
+    return jsonify(perms=request.user.role.perms)
     
 @app.route('/api/list_rooms')
 @auth('view_room')
@@ -375,7 +371,7 @@ class Role(db.Model):
     @property
     def perms(self):
         """returns a list of strings of permission names"""
-        return [str(p) for p in self]
+        return [p.name for p in self]
 
     @perms.setter
     def perms(self, newperms):

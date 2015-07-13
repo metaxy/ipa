@@ -441,6 +441,27 @@ class ApiTest(TestCase):
             r = rq.get(url+'r/test_room_access', cookies=lcred)
             self.json(r, sample_json('surveys', sv=(0, 0, 0)))
 
+    @test_for('list_permissions', """
+    :HTTP method: GET
+    :Response JSON: ``{"perms": ["some_permission", "another_permission"]}`` """)
+    def testListPermissions(self):
+        with testserver() as url:
+            participant_perms   = {server.Perms(p).name for p in server.Perms._participant.value}
+            lecturer_perms      = {server.Perms(p).name for p in server.Perms._lecturer.value}
+            admin_perms         = {server.Perms(p).name for p in server.Perms._admin_only.value}
+
+            cred = self.login(url, 'user1')
+            r = rq.get(url+'list_permissions', cookies=cred)
+            self.json(r, {"perms": participant_perms})
+
+            cred = self.login(url, 'lecturer1')
+            r = rq.get(url+'list_permissions', cookies=cred)
+            self.json(r, {"perms": lecturer_perms | participant_perms})
+
+            cred = self.login(url, 'admin')
+            r = rq.get(url+'list_permissions', cookies=cred)
+            self.json(r, {"perms": admin_perms | lecturer_perms | participant_perms})
+
 
 if __name__ == '__main__':
     import argparse
