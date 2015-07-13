@@ -1,3 +1,5 @@
+<div flex ng-include="'app/components/navbar/navbar.html'"></div>
+
 <div flex layout="column">
   <md-card>
     <md-card-content>
@@ -5,7 +7,7 @@
       <ul>
         <li ng-repeat="survey in surveyCtrl.surveys">
           <a ui-sref="survey_view({surveyId: survey.id})">{{survey.title}}</a>
-          
+
           <md-button ng-click="surveyCtrl.delete(survey.id)"><fa name="trash"></fa></md-button>
         </li>
       </ul>
