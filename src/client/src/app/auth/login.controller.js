@@ -6,7 +6,7 @@ export default function LoginCtrl(LfAcl, $state, ApiUrl, Shout, $http) {
       .success(() => {
          $http.get(ApiUrl+'/list_permissions')
          .success((data) => {
-           LfAcl.setRights(data);
+           LfAcl.setRights(data.perms);
            $state.go('home');
          })
          .error(() => {

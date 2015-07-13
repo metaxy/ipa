@@ -48,7 +48,7 @@ export default function LfAcl() {
       self.rightsPromise
         .then(
           (data) => {
-            self.rights = data;
+            self.rights = data.perms;
             $rootScope.acl = acl;
           },
           (err) => {
@@ -61,12 +61,11 @@ export default function LfAcl() {
     };
 
     $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
-      console.log("state change");
       if (self.rights === false) {
         self.rightsPromise
         .success(
           (data) => {
-            self.rights = data;
+            self.rights = data.perms;
             $rootScope.acl = acl;
             acl.changeState(event, toState);
           }
@@ -92,6 +91,7 @@ export default function LfAcl() {
       if (!isGranted && self.redirect !== false) {
         event.preventDefault();
         if (self.redirect !== toState.name) {
+          console.log("redirect back to login");
           $state.go(self.redirect);
         }
       }
