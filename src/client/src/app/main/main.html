@@ -35,12 +35,57 @@
     <md-card-content>
       <h3> Veranstaltung erstellen</h3>
       <md-input-container flex>
-        <input type="text" placeholder="Raumname" ng-model="room_name" class="inputGov">
+        <input type="text" placeholder="Raumname" ng-model="room_name">
       </md-input-container>
       <md-input-container flex>
-        <input type="password" placeholder="Password" ng-model="room_password" class="inputGov">
+        <input type="password" placeholder="Password" ng-model="room_passkey">
       </md-input-container>
-      <md-button class="md-primary md-raised" ng-click="mainCtrl.createRoom(room_name, room_password)">erstellen</md-button>
+      <md-button class="md-primary md-raised" ng-click="mainCtrl.createRoom(room_name, room_passkey)">erstellen</md-button>
     </md-card-content>
   </md-card>
 </div>
+
+<div ng-if="acl.can('create_account')">
+  <md-card>
+    <md-card-content>
+      <h3> Account erstellen</h3>
+      <md-input-container flex>
+        <input type="text" placeholder="Accountname" ng-model="account_name">
+      </md-input-container>
+      <md-input-container flex>
+        <input type="password" placeholder="Password" ng-model="account_password">
+      </md-input-container>
+      <md-button class="md-primary md-raised" ng-click="mainCtrl.createAccount(account_name, account_password)">erstellen</md-button>
+    </md-card-content>
+  </md-card>
+</div>
+
+<div ng-if="acl.can('create_role')">
+  <md-card>
+    <md-card-content>
+      <h3> Account erstellen</h3>
+      <md-input-container flex>
+        <input type="text" placeholder="Rollenname" ng-model="role_name">
+      </md-input-container>
+      <md-button class="md-primary md-raised" ng-click="mainCtrl.createRole(role_name">erstellen</md-button>
+    </md-card-content>
+  </md-card>
+</div>
+
+<div ng-if="acl.can('edit_role')">
+  <md-card>
+    <md-card-content>
+      <h3> Rolle bearbeiten</h3>
+      <md-select placeholder="Rollenname" ng-model="ctrl.userState">
+        <md-option ng-repeat="role in mainCtrl.all_roles">{{role}}</md-option>
+      </md-select>
+      <label>
+        <md-checkbox type="checkbox" ng-model="right" ng-repeat="right in mainCtrl.optionalRights">
+          {{right}}
+        </md-checkbox>
+      </label>
+      <md-button class="md-primary md-raised" ng-click="mainCtrl.editRole(role_name)">erstellen</md-button>
+    </md-card-content>
+  </md-card>
+</div>
+
