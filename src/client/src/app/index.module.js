@@ -126,4 +126,3 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
     LfAcl.setRightsPromise($http.get(ApiUrl+'/list_permissions'));
     $rootScope.acl = LfAcl;
   });
-

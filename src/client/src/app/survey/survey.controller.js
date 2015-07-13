@@ -1,5 +1,5 @@
 'use strict';
-export default function SurveyCtrl($stateParams,$rootScope) {
+export default function SurveyCtrl($stateParams,$rootScope, $http) {
   /*this.room = Room.findById({id: $stateParams.roomId}).$promise
     .then((data) => {
       $rootScope.siteTitle = "Umfragen in " + data.name;
@@ -21,7 +21,11 @@ export default function SurveyCtrl($stateParams,$rootScope) {
   }
 
   this.newSurvey = (title) => {
-    var survey = {title: title};
+    var survey = {title: title, options: surveyCtrl.options};
+		$http.post(ApiUrl+'r/'+/*room_name*/'create_survey', survey)
+		.success((data) => {})
+		.error((err) => {})
+		
     /*Room.survey.create({id:$stateParams.roomId}, survey).$promise.then((data) => {
       this.options.forEach((d) => {
         Survey.surveyOptions.create({id: data.id}, d);

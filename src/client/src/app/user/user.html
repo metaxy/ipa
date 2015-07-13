@@ -5,7 +5,7 @@
       <md-list-item ng-repeat="user in userCtrl.users">
        <a ui-sref="user_edit({userId: user.name})">{{user.name}}</a>
        {{user.role}}
-       <md-button flex=10 ng-if="acl.can('delete_account')" ng-click="userCtrl.delete(user.name)">
+       <md-button aria-label="Delete" flex=10 ng-if="acl.can('delete_account')" ng-click="userCtrl.delete(user.name)">
           <fa name="trash"></fa>
        </md-button>
       </md-liste-item>

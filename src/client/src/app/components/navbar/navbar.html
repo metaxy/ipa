@@ -4,7 +4,7 @@
     <md-button ui-sref="home" class="md-icon-button" aria-label="Settings">
       <fa name="home" size="2"></fa>
     </md-button>
-    <md-button ui-sref="user" class="md-icon-button" ng-if="acl.can('create_account') || acl.can('delete_account')">
+    <md-button ui-sref="user" aria-label="User" class="md-icon-button" ng-if="acl.can('create_account') || acl.can('delete_account')">
       <fa name="user" size="2"></fa>
     </md-button>
     <md-button ng-if="acl.can('edit_role')" class="md-icon-button" aria-label="Settings">
