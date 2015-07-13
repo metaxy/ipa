@@ -1,10 +1,10 @@
 'use strict';
 import _ from 'lodash';
 export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
-  //Room.find().$promise.then((data) => {this.room_names =  _.pluck(data, 'name');});
 
-  // RÄUME SETZEN BEI VERANSTALTUNG BEITRETEN
- $http.get(ApiUrl+'/list_rooms')
+  $rootScope.siteTitle = "Start";
+
+  $http.get(ApiUrl+'/list_rooms')
   .success((data) => {
       this.room_names = data.rooms;
    })
@@ -12,7 +12,13 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
       Shout.error("Could not get rooms");
   });
 
-  $rootScope.siteTitle = "Start";
+  $http.get(ApiUrl+'/list_roles')
+  .success((data) => {
+      this.all_roles = data.roles;
+   })
+  .error(() => {
+      Shout.error("Could not get roles");
+  });
   this.all_rooms = $http.get(ApiUrl+'/list_rooms');
   this.optionalRights = ["create_question", "join_lecture", "vote_tempo", "vote_question", "vote_survey", "manage_lecture", "create_survey", "create_room", "view_tempo", "close_survey", "delete_question", "create_account", "delete_account", "assign_role", "create_role", "edit_role", "delete_role", "list_roles", "list_users"];
   this.all_roles = $http.get(ApiUrl+'/list_roles');
@@ -27,16 +33,6 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
     .error(() => {
         Shout.error("Incorrect Password");
     });
-    /*Account.joinRoom({room: room_name, code: room_password})
-    .$promise.then(
-      (data) => {
-        $state.go('room', {roomId: data.data});
-      },
-      (err) => {
-        Shout.error("Falsches Passwort");
-      }
-    );
-    */
   }
 
   this.createRoom = (room_name, room_passkey) => {

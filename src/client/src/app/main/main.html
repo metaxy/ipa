@@ -77,14 +77,14 @@
     <md-card-content>
       <h3> Rolle bearbeiten</h3>
       <md-select placeholder="Rollenname" ng-model="ctrl.userState">
-        <md-option ng-repeat="role in mainCtrl.all_roles">{{role}}</md-option>
+        <md-option ng-repeat="role in mainCtrl.all_roles">{{role.name}}</md-option>
       </md-select>
       <label>
         <md-checkbox type="checkbox" ng-model="right" ng-repeat="right in mainCtrl.optionalRights">
           {{right}}
         </md-checkbox>
       </label>
-      <md-button class="md-primary md-raised" ng-click="mainCtrl.editRole(role_name)">erstellen</md-button>
+      <md-button class="md-primary md-raised" ng-click="mainCtrl.editRole(role_name)">bearbeiten</md-button>
     </md-card-content>
   </md-card>
 </div>
