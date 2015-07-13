@@ -21,7 +21,7 @@ class Perms(Enum):
             vote_tempo,
             vote_question,
             vote_survey,
-			list_permissions
+            list_permissions
             ) = tuple(range(8))
     _lecturer = (
             manage_lecture,
@@ -545,6 +545,9 @@ if __name__ == '__main__':
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+args.database
             
     if args.create_db:
+        if args.debug:
+            import os
+            os.remove(args.database)
         create_test_db()
     else:
         if args.port is not None:
