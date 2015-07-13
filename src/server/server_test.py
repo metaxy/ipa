@@ -40,8 +40,8 @@ def test_for(endpoint, doc=""):
     return deco
 
 
+ignore = lambda x: True
 def sample_json(test, qv=0, sv=None, lect=False):
-    ignore = lambda x: True
     case = lambda name, val: val if test==name else ignore
     cases = lambda d: d.get(test, ignore)
     opts = ['opt1', 'opt2', 'opt3']
@@ -475,12 +475,16 @@ class ApiTest(TestCase):
         with testserver() as url:
             cred = self.login(url, 'admin')
             r = rq.get(url+'list_users', cookies=cred)
-            self.json(r, {'users':
-                [{'name': 'user1',      'role': 'participant'},
-                {'name': 'user2',       'role': 'participant'},
-                {'name': 'user3',       'role': 'participant'},
-                {'name': 'lecturer1',   'role': 'lecturer'},
-                {'name': 'admin',       'role': 'admin'}]})
+            self.success(r)
+            j = r.json()
+            testdata = [('user1'     ,'participant'),
+                        ('user2'     ,'participant'),
+                        ('user3'     ,'participant'),
+                        ('lecturer1' ,'lecturer'),
+                        ('admin'     ,'admin')]
+            self._json_match(j, {'users': [{'name': ignore, 'role': ignore}]*len(testdata)})
+            j['users'] = {e['name']: e for e in j['users']}
+            self._json_match(j, {'users': {n: {'name': n, 'role': r} for n,r in testdata}})
 
     @test_for('list_roles', """
     :HTTP method: GET
@@ -499,10 +503,14 @@ class ApiTest(TestCase):
 
             cred = self.login(url, 'admin')
             r = rq.get(url+'list_roles', cookies=cred)
-            self.json(r, {'roles':
-                [{'name': 'participant', 'perms': participant_perms},
-                {'name': 'lecturer',     'perms': lecturer_perms | participant_perms},
-                {'name': 'admin',        'perms': admin_perms | lecturer_perms | participant_perms}]})
+            self.success(r)
+            j = r.json()
+            testdata = [('participant', participant_perms),
+                        ('lecturer',    lecturer_perms | participant_perms),
+                        ('admin',       admin_perms | lecturer_perms | participant_perms)]
+            self._json_match(j, {'roles': [{'name': ignore, 'perms': ignore}]*len(testdata)})
+            j['roles'] = {e['name']: e for e in j['roles']}
+            self._json_match(j, {'roles': {n: {'name': n, 'perms': p} for n,p in testdata}})
 
 
 if __name__ == '__main__':
