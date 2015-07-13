@@ -485,11 +485,13 @@ class Survey(db.Model):
                     'title': self.title,
                     'options': self.options,
                     'results': self.count_votes(),
-                    'total': self.total_votes()}
+                    'total': self.total_votes(),
+                    'closed': True}
         else:
             return {'id': self.id,
                     'title': self.title,
-                    'options': self.options}
+                    'options': self.options,
+                    'closed': False}
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)

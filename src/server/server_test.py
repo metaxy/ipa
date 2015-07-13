@@ -60,11 +60,13 @@ def sample_json(test, qv=0, sv=None, lect=False):
 					 'title': 'test survey',
 					 'options': opts,
 					 'results': set(zip(opts, sv)),
-					 'total': sum(sv)}
+					 'total': sum(sv),
+                     'closed': True}
 				if sv else
 					{'id': ignore,
 					 'title': 'test survey',
-					 'options': opts}],
+					 'options': opts,
+                     'closed': False}],
 			'nosurveys': []}),
         'user_is_lecturer': case('basic', lect)
     }
@@ -399,12 +401,14 @@ class ApiTest(TestCase):
          "surveys": [
             {"id": 1,
              "title": "Open survey",
-             "options": ["foo", "bar", "third option"]}
+             "options": ["foo", "bar", "third option"],
+             "closed": false},
             {"id": 2,
              "title": "Closed survey",
              "options": ["baz", "something"],
              "results": [["baz", 23], ["something", 42]]),
-             "total": 65}],
+             "total": 65,
+             "closed": true}],
          "user_is_lecturer": False} """)
     def testViewRoom(self):
         with testserver() as url:
