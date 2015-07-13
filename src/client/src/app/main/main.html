@@ -24,7 +24,7 @@
       </md-input-container>
       <md-input-container flex>
         <label>Password</label>
-        <input type="password" ng-model="room_password">
+        <input type="password" ng-model="room_password" ng-keyup="$event.keyCode == 13 ? mainCtrl.joinRoom(room_name, room_password) : null">
       </md-input-container>
       <md-button class="md-primary md-raised" ng-click="mainCtrl.joinRoom(room_name, room_password)">beitreten</md-button>
   </md-card-content>

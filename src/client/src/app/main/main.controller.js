@@ -2,10 +2,10 @@
 import _ from 'lodash';
 export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
   //Room.find().$promise.then((data) => {this.room_names =  _.pluck(data, 'name');});
-  //this.my_rooms = Account.rooms({id:LoopBackAuth.currentUserId});
+
+  // RÄUME SETZEN BEI VERANSTALTUNG BEITRETEN
  $http.get(ApiUrl+'/list_rooms')
   .success((data) => {
-      console.log('data.rooms ', data.rooms);
       this.room_names = data.rooms;
    })
   .error(() => {
@@ -15,7 +15,14 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
   $rootScope.siteTitle = "Start";
 
   this.joinRoom = (room_name, room_password) => {
-
+    $http.post(ApiUrl+'/r/'+ room_name + '/enter' , {passkey : room_password})
+    .success((data) => {
+        console.log('Entered Room');
+        $state.go('room', {roomId: room_name});
+    })
+    .error(() => {
+        Shout.error("Incorrect Password");
+    });
     /*Account.joinRoom({room: room_name, code: room_password})
     .$promise.then(
       (data) => {
@@ -28,13 +35,25 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
     */
   }
 
-  this.createRoom = (room_name, room_password) => {
-    $http.post(ApiUrl+'/create_room', {name : room_name, password: room_password})
+  this.createRoom = (room_name, room_passkey) => {
+    $http.post(ApiUrl+'/create_room', {name : room_name, passkey: room_passkey})
       .success((data) => {
-        $state.go('room', {roomName: data.name});
+        console.log('Room created', data);
+        $state.go('room', {roomId: data.name});
       })
       .error((err) => {
-        Shout.error(err);
+        Shout.error('Could not create room');
+      });
+  }
+
+  this.createAccount = (account_name, account_password) => {
+    $http.post(ApiUrl+'/create_account', {name : account_name, password: account_password})
+      .success((data) => {
+        console.log('Account created', data);
+        $state.go('user');
+      })
+      .error((err) => {
+        Shout.error('Could not create account');
       });
   }
 
