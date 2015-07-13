@@ -45,16 +45,6 @@ def sample_json(test, qv=0, sv=None, lect=False):
     case = lambda name, val: val if test==name else ignore
     cases = lambda d: d.get(test, ignore)
     opts = ['opt1', 'opt2', 'opt3']
-    if sv:
-        foo = {'id': ignore,
-               'title': 'test survey',
-               'options': opts,
-               'results': set(zip(opts, sv)),
-               'total': sum(sv)}
-    else:
-        foo = {'id': ignore,
-               'title': 'test survey',
-               'options': opts}
     return {
         'name': case('basic', 'test_room_access'),
         'questions': cases({
@@ -64,7 +54,18 @@ def sample_json(test, qv=0, sv=None, lect=False):
                 'votes': qv
                 }],
             'noquestions': []}),
-        'surveys': case('surveys', [foo]),
+        'surveys': cases({
+			'surveys': [
+					{'id': ignore,
+					 'title': 'test survey',
+					 'options': opts,
+					 'results': set(zip(opts, sv)),
+					 'total': sum(sv)}
+				if sv else
+					{'id': ignore,
+					 'title': 'test survey',
+					 'options': opts}],
+			'nosurveys': []}),
         'user_is_lecturer': case('basic', lect)
     }
 
@@ -303,6 +304,25 @@ class ApiTest(TestCase):
             cred = self.login(url, 'lecturer1')
             self.ok      (rq.post(url+'r/test_room_access/s/'+str(sid)+'/close', cookies=cred))
             self.notfound(rq.post(url+'r/test_room_access/s/123456789/close', cookies=cred))
+
+    @test_for('delete_survey', """
+    :HTTP method:       POST
+    :Request POST data: None
+    :Response JSON:     ``{"result": "ok"}`` """)
+    def testDeleteSurvey(self):
+        with testserver() as url:
+            cred = self.login(url, 'user1')
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.json(r, sample_json('surveys'))
+            sid = r.json()['surveys'][0]['id']
+
+            self.denied  (rq.post(url+'r/test_room_access/s/'+str(sid)+'/delete', cookies=cred))
+
+            cred = self.login(url, 'lecturer1')
+            self.ok      (rq.post(url+'r/test_room_access/s/'+str(sid)+'/delete', cookies=cred))
+            self.json(rq.get(url+'r/test_room_access', cookies=cred), sample_json('nosurveys'))
+
+            self.notfound(rq.post(url+'r/test_room_access/s/123456789/delete', cookies=cred))
 
     @test_for('create_question', """
     :HTTP method:   POST

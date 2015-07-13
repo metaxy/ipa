@@ -29,8 +29,9 @@ class Perms(Enum):
             create_room,
             view_tempo,
             close_survey,
-            delete_question
-            ) = tuple(range(8,8+6))
+            delete_question,
+            delete_survey
+            ) = tuple(range(12,12+7))
     _admin_only = (
             create_account,
             delete_account,
@@ -321,6 +322,15 @@ def close_survey(room, survey_id):
     sv = Survey.query.get_or_404(survey_id)
     sv.closed = True
     db.session.add(sv)
+    db.session.commit()
+    return jsonify(result='ok')
+
+@app.route('/api/r/<room_name>/s/<int:survey_id>/delete', methods=['POST'])
+@auth
+@room
+def delete_survey(room, survey_id):
+    sv = Survey.query.get_or_404(survey_id)
+    db.session.delete(sv)
     db.session.commit()
     return jsonify(result='ok')
 
