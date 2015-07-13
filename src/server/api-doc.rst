@@ -126,9 +126,9 @@ edit_role
 
 :Routes:
     ``/api/role/<role_name>``
-	:HTTP method: POST
-	:Request JSON: ``{"perms": ["complete", "updated", "list", "of", "permissions"]}``
-    :Response JSON: ``{"result": "ok"}``
+:HTTP method: POST
+:Request JSON: ``{"perms": ["complete", "updated", "list", "of", "permissions"]}``
+:Response JSON: ``{"result": "ok"}``
 
 enter_room
 ==========
@@ -243,6 +243,16 @@ view_room
          "closed": true}],
      "user_is_lecturer": False}
 
+view_tempo
+==========
+
+:Routes:
+    ``/api/r/<room_name>/t``
+:HTTP method: GET
+:Response JSON: ``{"up": 23, "down": 42}``
+
+                The vote count is by default measured over the last five minutes.
+
 vote_question
 =============
 
@@ -259,4 +269,13 @@ vote_survey
     ``/api/r/<room_name>/s/<int:survey_id>/vote``
 :HTTP method:   POST
 :Request JSON:  ``{"option": 3}``
+:Response JSON: ``{"result": "ok"}``
+
+vote_tempo
+==========
+
+:Routes:
+    ``/api/r/<room_name>/t/<action>``
+:HTTP method: GET
+:Request JSON: None
 :Response JSON: ``{"result": "ok"}``

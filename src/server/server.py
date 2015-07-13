@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
+import sys, time, threading
 from functools import wraps, lru_cache
 import json
 from enum import Enum
@@ -51,6 +51,8 @@ DEFAULT_LECTURER = Perms._participant.value + Perms._lecturer.value
 ALL_PERMS = Perms._participant.value + Perms._lecturer.value + Perms._admin_only.value
 
 MAX_OPTS = 32
+TEMPO_INTERVAL = 30 # seconds
+TEMPO_TIMEOUT = 300 # seconds
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://hieronymus:2dS3v5l6oaG2RpEne1CH7WT9UyEwe5nk@localhost/hieronymus'
@@ -58,6 +60,23 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PUSH_STREAM_URL'] = 'http://localhost/pub'
 app.secret_key = 'jMHF20JxP49hfTp2rZIDFmRbPCcjw5p9'
 db = SQLAlchemy(app)
+
+tempo_up = set()
+tempo_down = set()
+
+def gc_tempo(loop=True, timeout=TEMPO_TIMEOUT):
+    global tempo_up, tempo_down
+    while True:
+        t = time.time()
+        tempo_up   = {e for e in tempo_up if e > t-timeout}
+        tempo_down = {e for e in tempo_down if e > t-timeout}
+        if loop:
+            time.sleep(TEMPO_INTERVAL)
+        else:
+            break
+
+tempo_thread = threading.Thread(target=gc_tempo, daemon=True)
+tempo_thread.start()
 
 @app.after_request
 def cors_hack(res):
@@ -71,6 +90,14 @@ def publish(channel, eventtype, payload):
     return
     requests.post(app.config['PUSH_STREAM_URL'], params={'id': channel},
             data=json.dumps({'type': eventtype, 'payload': payload}))
+
+def debug_only(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not app.debug:
+            abort(404)
+        return func(*args, **kwargs)
+    return wrapper
 
 def room(func):
     @wraps(func)
@@ -352,8 +379,13 @@ def delete_question(room, question_id):
 @app.route('/api/r/<room_name>/t/<action>', methods=['POST'])
 @auth
 @room
-def vote_tempo(action):
-    if action not in ('up', 'down'):
+def vote_tempo(room, action):
+    global tempo_up, tempo_down
+    if action == 'up':
+        tempo_up |= {time.time()}
+    elif action == 'down':
+        tempo_down |= {time.time()}
+    else:
         abort(400)
 
     publish(request.room.name, 'tempo', action)
@@ -362,8 +394,15 @@ def vote_tempo(action):
 @app.route('/api/r/<room_name>/t', methods=['GET'])
 @auth
 @room
-def view_tempo(action):
-    return jsonify(up=23, down=42) #FIXME
+def view_tempo(room):
+    global tempo_up, tempo_down
+    return jsonify(up=len(tempo_up), down=len(tempo_down))
+
+@app.route('/api/gc_tempo', methods=['POST'])
+@debug_only
+def gc_tempo_viewfunc():
+    gc_tempo(loop=False, timeout=int(request.get_json(True)['timeout']))
+    return jsonify(result='ok')
 
 ###################
 

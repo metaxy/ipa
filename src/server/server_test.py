@@ -133,7 +133,7 @@ class ApiTest(TestCase):
     def testUnitTestCoverage(self):
         with testserver() as url:
             """tests whether there is a unit test for every endpoint"""
-            excluded_eps = {'static', 'view_index'}
+            excluded_eps = {'static', 'view_index', 'gc_tempo_viewfunc'}
             eps = {rule.endpoint for rule in server.app.url_map.iter_rules()} - excluded_eps
             self.assertSetEqual(eps, set(test_endpoints.keys()))
 
@@ -557,8 +557,8 @@ class ApiTest(TestCase):
             self.assertSetEqual(rl(rq.get(url+'list_roles', cookies=cred)), roles - {'lecturer'})
 
     @test_for('edit_role', """
-	:HTTP method: POST
-	:Request JSON: ``{"perms": ["complete", "updated", "list", "of", "permissions"]}``
+    :HTTP method: POST
+    :Request JSON: ``{"perms": ["complete", "updated", "list", "of", "permissions"]}``
     :Response JSON: ``{"result": "ok"}`` """)
     def testEditRole(self):
         with testserver() as url:
@@ -602,6 +602,31 @@ class ApiTest(TestCase):
             self._json_match(j, {'roles': [{'name': ignore, 'perms': ignore}]*len(testdata)})
             j['roles'] = {e['name']: e for e in j['roles']}
             self._json_match(j, {'roles': {n: {'name': n, 'perms': p} for n,p in testdata}})
+    
+    @test_for('vote_tempo', """
+    :HTTP method: GET
+    :Request JSON: None
+    :Response JSON: ``{"result": "ok"}`` """)
+    @test_for('view_tempo', """
+    :HTTP method: GET
+    :Response JSON: ``{"up": 23, "down": 42}``
+                    
+                    The vote count is by default measured over the last five minutes.
+    """)
+    def testTempoStuff(self):
+        with testserver() as url:
+            cred = self.login(url, 'lecturer1')
+            self.bad(rq.post(url+'r/test_room_access/t/this_does_not_exist', cookies=cred))
+            self.ok(rq.post(url+'r/test_room_access/t/up', cookies=cred))
+            self.ok(rq.post(url+'r/test_room_access/t/down', cookies=cred))
+            self.ok(rq.post(url+'r/test_room_access/t/down', cookies=cred))
+
+            self.json(rq.get(url+'r/test_room_access/t', cookies=cred), {'up': 1, 'down': 2})
+            time.sleep(2)
+            self.ok(rq.post(url+'r/test_room_access/t/up', cookies=cred))
+            self.json(rq.get(url+'r/test_room_access/t', cookies=cred), {'up': 2, 'down': 2})
+            self.ok(rq.post(url+'gc_tempo', json={'timeout': 1}, cookies=cred))
+            self.json(rq.get(url+'r/test_room_access/t', cookies=cred), {'up': 1, 'down': 0})
 
 
 if __name__ == '__main__':
