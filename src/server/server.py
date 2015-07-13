@@ -132,7 +132,8 @@ def login():
             user = User(name=session['uid'], role=Role.query.filter_by(name='participant').first())
             db.session.add(user)
             db.session.commit()
-        return jsonify(result='ok')
+            return jsonify(result='ok', first_login=True)
+        return jsonify(result='ok', first_login=False)
     else:
         abort(403)
 

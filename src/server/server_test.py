@@ -143,13 +143,31 @@ class ApiTest(TestCase):
         {'uid':      'name_of_the_user_for_login',
          'password': 'password_of_this_user'}
 
-    :Response JSON:  ``{'return': 'ok'}`` """)
+    :Response JSON:  ``{'return': 'ok', 'first_login': false}`` """)
     def testLogin(self):
         with testserver() as url:
             self.denied (rq.post(url+'login', json={'uid': 'test1', 'password': 'invalid password'}))
             self.denied (rq.post(url+'login', json={'uid': 'test1', 'password': ''}))
             self.denied (rq.post(url+'login', json={'uid': '', 'password': 'invalid password'}))
             self.ok     (rq.post(url+'login', json={'uid': 'test1', 'password': 'test1'}))
+
+    @test_for('delete_account', """
+    :HTTP method:    POST
+    :Request JSON: `` {'name': 'name_of_the_account_to_delete'}``
+    :Response JSON:  ``{'return': 'ok'}`` """)
+    def testDeleteAccount(self):
+        with testserver() as url:
+            r = rq.post(url+'login', json={'uid': 'test1', 'password': 'test1'})
+            self.json(r, {'result': 'ok', 'first_login': True})
+
+            r = rq.post(url+'login', json={'uid': 'test1', 'password': 'test1'})
+            self.json(r, {'result': 'ok', 'first_login': False})
+
+            self.ok(rq.post(url+'delete_account', json={'name': 'test1'}, cookies=self.login(url, 'admin')))
+
+            r = rq.post(url+'login', json={'uid': 'test1', 'password': 'test1'})
+            self.json(r, {'result': 'ok', 'first_login': True})
+    
     
     @test_for('logout', """
     :HTTP method:    POST
