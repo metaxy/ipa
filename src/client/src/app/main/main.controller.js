@@ -3,6 +3,15 @@ import _ from 'lodash';
 export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
   //Room.find().$promise.then((data) => {this.room_names =  _.pluck(data, 'name');});
   //this.my_rooms = Account.rooms({id:LoopBackAuth.currentUserId});
+ $http.get(ApiUrl+'/list_rooms')
+  .success((data) => {
+      console.log('data.rooms ', data.rooms);
+      this.room_names = data.rooms;
+   })
+  .error(() => {
+      Shout.error("Could not get rooms");
+  });
+
   $rootScope.siteTitle = "Start";
 
   this.joinRoom = (room_name, room_password) => {
