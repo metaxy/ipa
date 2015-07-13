@@ -4,7 +4,7 @@ export default function UserCtrl($rootScope, $http, ApiUrl) {
   $rootScope.siteTitle = "Benutzer";
 
   this.reload = () => {
-    this.users = $http.get(ApiUrl+'/list_users');
+    $http.get(ApiUrl+'/list_users').success((data) => this.users = data.users);
   }
 
   this.reload();
