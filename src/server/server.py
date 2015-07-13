@@ -559,7 +559,10 @@ if __name__ == '__main__':
     if args.create_db:
         if args.debug:
             import os
-            os.remove(args.database)
+			try:
+				os.remove(args.database)
+			except:
+				pass
         create_test_db()
     else:
         if args.port is not None:
