@@ -1,8 +1,7 @@
 .vagrant
-.*.swo
-.*.swp
 src/server/venv
 src/server/test.db
+src/server/__pycache__
 *.aux
 *.log
 *.out
