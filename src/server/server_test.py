@@ -452,15 +452,57 @@ class ApiTest(TestCase):
 
             cred = self.login(url, 'user1')
             r = rq.get(url+'list_permissions', cookies=cred)
-            self.json(r, {"perms": participant_perms})
+            self.json(r, {'perms': participant_perms})
 
             cred = self.login(url, 'lecturer1')
             r = rq.get(url+'list_permissions', cookies=cred)
-            self.json(r, {"perms": lecturer_perms | participant_perms})
+            self.json(r, {'perms': lecturer_perms | participant_perms})
 
             cred = self.login(url, 'admin')
             r = rq.get(url+'list_permissions', cookies=cred)
-            self.json(r, {"perms": admin_perms | lecturer_perms | participant_perms})
+            self.json(r, {'perms': admin_perms | lecturer_perms | participant_perms})
+    
+    @test_for('list_users', """
+    :HTTP method: GET
+    :Response JSON:
+      ::
+        {"users": [
+            {"name": "some_username",
+             "role": "that_users_role"},
+            {"name": "another_name",
+             "role": "some_role"}]}""")
+    def testListUsers(self):
+        with testserver() as url:
+            cred = self.login(url, 'admin')
+            r = rq.get(url+'list_users', cookies=cred)
+            self.json(r, {'users':
+                [{'name': 'user1',      'role': 'participant'},
+                {'name': 'user2',       'role': 'participant'},
+                {'name': 'user3',       'role': 'participant'},
+                {'name': 'lecturer1',   'role': 'lecturer'},
+                {'name': 'admin',       'role': 'admin'}]})
+
+    @test_for('list_roles', """
+    :HTTP method: GET
+    :Response JSON:
+      ::
+        {"roles": [
+            {"name":  "role_name",
+             "perms": ["list", "of", "perms"]},
+            {"name":  "another_role",
+             "perms": ["perm1", "perm2"]}]}""")
+    def testListRoles(self):
+        with testserver() as url:
+            participant_perms   = {server.Perms(p).name for p in server.Perms._participant.value}
+            lecturer_perms      = {server.Perms(p).name for p in server.Perms._lecturer.value}
+            admin_perms         = {server.Perms(p).name for p in server.Perms._admin_only.value}
+
+            cred = self.login(url, 'admin')
+            r = rq.get(url+'list_roles', cookies=cred)
+            self.json(r, {'roles':
+                [{'name': 'participant', 'perms': participant_perms},
+                {'name': 'lecturer',     'perms': lecturer_perms | participant_perms},
+                {'name': 'admin',        'perms': admin_perms | lecturer_perms | participant_perms}]})
 
 
 if __name__ == '__main__':

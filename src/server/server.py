@@ -37,8 +37,10 @@ class Perms(Enum):
             assign_role,
             create_role,
             edit_role,
-            delete_role
-            ) = tuple(range(26,26+6))
+            delete_role,
+			list_roles,
+			list_users
+            ) = tuple(range(26,26+8))
 
     def __repr__(self):
         return self.name
@@ -216,6 +218,16 @@ def delete_role():
 @auth
 def list_permissions():
     return jsonify(perms=request.user.role.perms)
+
+@app.route('/api/list_roles')
+@auth
+def list_roles():
+	return jsonify(roles=[{'name': r.name, 'perms': r.perms} for r in Role.query.all()])
+
+@app.route('/api/list_users')
+@auth
+def list_users():
+	return jsonify(users=[{'name': u.name, 'role': u.role.name} for u in User.query.all()])
     
 @app.route('/api/list_rooms')
 @auth('view_room')
