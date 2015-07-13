@@ -38,8 +38,8 @@ class Perms(Enum):
             create_role,
             edit_role,
             delete_role,
-			list_roles,
-			list_users
+            list_roles,
+            list_users
             ) = tuple(range(26,26+8))
 
     def __repr__(self):
@@ -222,12 +222,12 @@ def list_permissions():
 @app.route('/api/list_roles')
 @auth
 def list_roles():
-	return jsonify(roles=[{'name': r.name, 'perms': r.perms} for r in Role.query.all()])
+    return jsonify(roles=[{'name': r.name, 'perms': r.perms} for r in Role.query.all()])
 
 @app.route('/api/list_users')
 @auth
 def list_users():
-	return jsonify(users=[{'name': u.name, 'role': u.role.name} for u in User.query.all()])
+    return jsonify(users=[{'name': u.name, 'role': u.role.name} for u in User.query.all()])
     
 @app.route('/api/list_rooms')
 @auth('view_room')
@@ -559,10 +559,10 @@ if __name__ == '__main__':
     if args.create_db:
         if args.debug:
             import os
-			try:
-				os.remove(args.database)
-			except:
-				pass
+            try:
+                os.remove(args.database)
+            except:
+                pass
         create_test_db()
     else:
         if args.port is not None:
