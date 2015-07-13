@@ -104,6 +104,14 @@ delete_question
 :Request POST data: None
 :Response JSON:     ``{"result": "ok"}``
 
+delete_role
+===========
+
+:Routes:
+    ``/api/delete_role``
+:HTTP method: POST
+:Request JSON: ``{"role": "role_to_delete"}``
+
 delete_survey
 =============
 
