@@ -104,6 +104,37 @@ enter_room
 :Request JSON:  ``{"passkey": "passkey_for_this_room"}``
 :Response JSON: ``{"result": "ok"}``
 
+leave_room
+==========
+
+:Routes:
+    ``/api/r/<room_name>/leave_room``
+:HTTP method:        POST
+:Request POST data:  None
+:Response JSON:      ``{"result": "ok"}``
+
+list_permissions
+================
+
+:Routes:
+    ``/api/list_permissions``
+:HTTP method: GET
+:Response JSON: ``{"perms": ["some_permission", "another_permission"]}``
+
+list_roles
+==========
+
+:Routes:
+    ``/api/list_roles``
+:HTTP method: GET
+:Response JSON:
+  ::
+    {"roles": [
+        {"name":  "role_name",
+         "perms": ["list", "of", "perms"]},
+        {"name":  "another_role",
+         "perms": ["perm1", "perm2"]}]}
+
 list_rooms
 ==========
 
@@ -111,6 +142,20 @@ list_rooms
     ``/api/list_rooms``
 :HTTP method:   GET
 :Response JSON: ``{"rooms": ["some_room", "another_room"]}``
+
+list_users
+==========
+
+:Routes:
+    ``/api/list_users``
+:HTTP method: GET
+:Response JSON:
+  ::
+    {"users": [
+        {"name": "some_username",
+         "role": "that_users_role"},
+        {"name": "another_name",
+         "role": "some_role"}]}
 
 login
 =====
