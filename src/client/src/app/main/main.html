@@ -11,7 +11,7 @@
       <md-divider></md-divider>
       </md-list-item>
     </md-list>
-    <md-card-content>
+    </md-card-content>
   </md-card>
 
   <md-card>
@@ -27,6 +27,20 @@
         <input type="password" ng-model="room_password">
       </md-input-container>
       <md-button class="md-primary md-raised" ng-click="mainCtrl.joinRoom(room_name, room_password)">beitreten</md-button>
-  <md-card-content>
+  </md-card-content>
+  </md-card>
+</div>
+<div ng-if="acl.can('create_room')">
+  <md-card>
+    <md-card-content>
+      <h3> Veranstaltung erstellen</h3>
+      <md-input-container flex>
+        <input type="text" placeholder="Raumname" ng-model="room_name" class="inputGov">
+      </md-input-container>
+      <md-input-container flex>
+        <input type="password" placeholder="Password" ng-model="room_password" class="inputGov">
+      </md-input-container>
+      <md-button class="md-primary md-raised" ng-click="mainCtrl.createRoom(room_name, room_password)">erstellen</md-button>
+    </md-card-content>
   </md-card>
 </div>
