@@ -41,7 +41,7 @@ class Perms(Enum):
             delete_role,
             list_roles,
             list_users
-            ) = tuple(range(14,14+8))
+            ) = tuple(range(22,22+8))
 
     def __repr__(self):
         return self.name
