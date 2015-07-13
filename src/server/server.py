@@ -212,7 +212,11 @@ def edit_role(role_name):
 @app.route('/api/delete_role', methods=['POST'])
 @auth
 def delete_role():
-    db.session.delete(Role.query.filter_by(name=request.get_json(True)['role'])).first_or_404()
+    r = Role.query.filter_by(name=request.get_json(True)['role']).first_or_404()
+    if User.query.filter_by(role=r).first() is not None:
+        abort(409)
+
+    db.session.delete(r)
     db.session.commit()
     return jsonify(result='ok')
 

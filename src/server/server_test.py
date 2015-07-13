@@ -55,19 +55,19 @@ def sample_json(test, qv=0, sv=None, lect=False):
                 }],
             'noquestions': []}),
         'surveys': cases({
-			'surveys': [
-					{'id': ignore,
-					 'title': 'test survey',
-					 'options': opts,
-					 'results': set(zip(opts, sv)),
-					 'total': sum(sv),
+            'surveys': [
+                    {'id': ignore,
+                     'title': 'test survey',
+                     'options': opts,
+                     'results': set(zip(opts, sv)),
+                     'total': sum(sv),
                      'closed': True}
-				if sv else
-					{'id': ignore,
-					 'title': 'test survey',
-					 'options': opts,
+                if sv else
+                    {'id': ignore,
+                     'title': 'test survey',
+                     'options': opts,
                      'closed': False}],
-			'nosurveys': []}),
+            'nosurveys': []}),
         'user_is_lecturer': case('basic', lect)
     }
 
@@ -537,6 +537,25 @@ class ApiTest(TestCase):
             self._json_match(j, {'users': [{'name': ignore, 'role': ignore}]*len(testdata)})
             j['users'] = {e['name']: e for e in j['users']}
             self._json_match(j, {'users': {n: {'name': n, 'role': r} for n,r in testdata}})
+
+
+    @test_for('delete_role', """
+    :HTTP method: POST
+    :Request JSON: ``{"role": "role_to_delete"}``""")
+    def testDeleteRole(self):
+        with testserver() as url:
+            rl = lambda r: {role['name'] for role in r.json()['roles']}
+
+            cred = self.login(url, 'admin')
+            roles = rl(rq.get(url+'list_roles', cookies=cred))
+            self.assertIn('lecturer', roles)
+
+            self.conflict(rq.post(url+'delete_role', json={'role': 'lecturer'}, cookies=cred))
+            self.ok(rq.post(url+'assign_role', json={'name': 'lecturer1', 'role': 'participant'}, cookies=cred))
+
+            self.ok(rq.post(url+'delete_role', json={'role': 'lecturer'}, cookies=cred))
+            self.assertSetEqual(rl(rq.get(url+'list_roles', cookies=cred)), roles - {'lecturer'})
+
 
     @test_for('list_roles', """
     :HTTP method: GET

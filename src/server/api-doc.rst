@@ -86,6 +86,15 @@ create_survey
      "options": ["Something", "Option 2", "This is an example"]}
 :Response JSON: ``{"result": "ok"}``
 
+delete_account
+==============
+
+:Routes:
+    ``/api/delete_account``
+:HTTP method:    POST
+:Request JSON: `` {'name': 'name_of_the_account_to_delete'}``
+:Response JSON:  ``{'return': 'ok'}``
+
 delete_question
 ===============
 
@@ -178,7 +187,7 @@ login
     {'uid':      'name_of_the_user_for_login',
      'password': 'password_of_this_user'}
 
-:Response JSON:  ``{'return': 'ok'}``
+:Response JSON:  ``{'return': 'ok', 'first_login': false}``
 
 logout
 ======
@@ -207,12 +216,14 @@ view_room
      "surveys": [
         {"id": 1,
          "title": "Open survey",
-         "options": ["foo", "bar", "third option"]}
+         "options": ["foo", "bar", "third option"],
+         "closed": false},
         {"id": 2,
          "title": "Closed survey",
          "options": ["baz", "something"],
          "results": [["baz", 23], ["something", 42]]),
-         "total": 65}],
+         "total": 65,
+         "closed": true}],
      "user_is_lecturer": False}
 
 vote_question
