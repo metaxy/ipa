@@ -95,6 +95,15 @@ delete_question
 :Request POST data: None
 :Response JSON:     ``{"result": "ok"}``
 
+delete_survey
+=============
+
+:Routes:
+    ``/api/r/<room_name>/s/<int:survey_id>/delete``
+:HTTP method:       POST
+:Request POST data: None
+:Response JSON:     ``{"result": "ok"}``
+
 enter_room
 ==========
 
