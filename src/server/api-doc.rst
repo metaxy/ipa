@@ -171,6 +171,15 @@ login
 
 :Response JSON:  ``{'return': 'ok'}``
 
+logout
+======
+
+:Routes:
+    ``/api/logout``
+:HTTP method:    POST
+:Request POST data:  None
+:Response JSON:  ``{'return': 'ok'}``
+
 view_room
 =========
 

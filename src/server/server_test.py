@@ -150,6 +150,16 @@ class ApiTest(TestCase):
             self.denied (rq.post(url+'login', json={'uid': '', 'password': 'invalid password'}))
             self.ok     (rq.post(url+'login', json={'uid': 'test1', 'password': 'test1'}))
     
+    @test_for('logout', """
+    :HTTP method:    POST
+    :Request POST data:  None
+    :Response JSON:  ``{'return': 'ok'}`` """)
+    def testLogout(self):
+        with testserver() as url:
+            cred = self.login(url, 'user1')
+            
+            self.ok     (rq.post(url+'logout', cookies=cred))
+            
     @test_for('create_account', """
     :HTTP method:    POST
     :Request JSON:
