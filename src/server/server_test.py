@@ -556,6 +556,26 @@ class ApiTest(TestCase):
             self.ok(rq.post(url+'delete_role', json={'role': 'lecturer'}, cookies=cred))
             self.assertSetEqual(rl(rq.get(url+'list_roles', cookies=cred)), roles - {'lecturer'})
 
+    @test_for('edit_role', """
+	:HTTP method: POST
+	:Request JSON: ``{"perms": ["complete", "updated", "list", "of", "permissions"]}``
+    :Response JSON: ``{"result": "ok"}`` """)
+    def testEditRole(self):
+        with testserver() as url:
+            rl = lambda r: {role['name']: role for role in r.json()['roles']}
+
+            cred = self.login(url, 'admin')
+            perms = set(rl(rq.get(url+'list_roles', cookies=cred))['lecturer']['perms'])
+            self.assertIn('create_room', perms)
+            self.assertIn('view_room', perms)
+            self.assertNotIn('create_role', perms)
+
+            newperms = perms | {'create_role'} - {'view_room', 'create_room'}
+
+            self.ok(rq.post(url+'role/lecturer', json={'perms': list(newperms)}, cookies=cred))
+
+            perms = set(rl(rq.get(url+'list_roles', cookies=cred))['lecturer']['perms'])
+            self.assertSetEqual(perms, newperms)
 
     @test_for('list_roles', """
     :HTTP method: GET

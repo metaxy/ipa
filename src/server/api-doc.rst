@@ -121,6 +121,15 @@ delete_survey
 :Request POST data: None
 :Response JSON:     ``{"result": "ok"}``
 
+edit_role
+=========
+
+:Routes:
+    ``/api/role/<role_name>``
+	:HTTP method: POST
+	:Request JSON: ``{"perms": ["complete", "updated", "list", "of", "permissions"]}``
+    :Response JSON: ``{"result": "ok"}``
+
 enter_room
 ==========
 

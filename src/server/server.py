@@ -200,13 +200,13 @@ def create_role():
     db.session.commit()
     return jsonify(result='ok')
 
-@app.route('/api/edit_role/<role_name>', methods=['POST'])
+@app.route('/api/role/<role_name>', methods=['POST'])
 @auth
 def edit_role(role_name):
-    role = request.get_json(True)['perms']
-    role.perms = Role.query.filter_by(name=role_name).first_or_404()
+    role = Role.query.filter_by(name=role_name).first_or_404()
+    role.perms = request.get_json(True)['perms']
     db.session.add(role)
-    db.session.commit(role)
+    db.session.commit()
     return jsonify(result='ok')
 
 @app.route('/api/delete_role', methods=['POST'])
