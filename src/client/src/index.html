@@ -25,6 +25,7 @@
     <![endif]-->
     <div ng-if="acl.isLoggedIn()">
       <div layout-padding flex layout="column">
+        <div flex ng-include="'app/components/navbar/navbar.html'"></div>
         <div flex ui-view></div>
       </div>
     </div>
