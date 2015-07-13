@@ -57,4 +57,14 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
       });
   }
 
+  this.createRole = (role_name) => {
+    $http.post(ApiUrl+'/create_role', {role : role_name})
+      .success((data) => {
+        console.log('Role created', data);
+      })
+      .error((err) => {
+        Shout.error('Could not create role');
+      });
+  }
+
 }
