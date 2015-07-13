@@ -13,6 +13,10 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
   });
 
   $rootScope.siteTitle = "Start";
+  this.all_rooms = $http.get(ApiUrl+'/list_rooms');
+  this.optionalRights = ["create_question", "join_lecture", "vote_tempo", "vote_question", "vote_survey", "manage_lecture", "create_survey", "create_room", "view_tempo", "close_survey", "delete_question", "create_account", "delete_account", "assign_role", "create_role", "edit_role", "delete_role", "list_roles", "list_users"];
+  this.all_roles = $http.get(ApiUrl+'/list_roles');
+  this.all_users = $http.get(ApiUrl+'/list_users');
 
   this.joinRoom = (room_name, room_password) => {
     $http.post(ApiUrl+'/r/'+ room_name + '/enter' , {passkey : room_password})
