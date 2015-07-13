@@ -19,29 +19,6 @@ export default function LfAcl() {
     var acl = {};
 
     acl.setRedirect = (redirect) => self.redirect = redirect;
-    acl.student = ['view_index',
-            'view_room',
-            'create_question',
-            'join_lecture',
-            'vote_tempo',
-            'vote_question',
-            'vote_survey']
-
-    acl.lecturer = [
-            'manage_lecture',
-            'create_survey',
-            'create_room',
-            'view_tempo',
-            'close_survey',
-            'delete_question'];
-    acl.admin = [
-            'create_account',
-            'delete_account',
-            'assign_role',
-            'create_role',
-            'edit_role',
-            'delete_role'];
-    acl.allRights = acl.student.concat(acl.lecturer.concat(acl.admin))
     acl.setRights = (rights) => self.rights = rights;
     acl.setRightsPromise = (rightsPromise) => {
       self.rightsPromise = rightsPromise;
@@ -97,8 +74,8 @@ export default function LfAcl() {
       }
     };
 
-    acl.isLoggedOut = () => !self.right || self.right.length == 0
-    acl.isLoggedIn = () =>  self.right && self.right.length > 0
+    acl.isLoggedOut = () => !self.rights || self.rights.length == 0
+    acl.isLoggedIn = () =>  self.rights && self.rights.length > 0
     acl.can = (action) => self.isGranted([action]);
     acl.canAll = (actions) => self.isGranted(actions);
     acl.canAny = (actions) =>  _.any(actions, (i) => self.contains(self.rights, i));
