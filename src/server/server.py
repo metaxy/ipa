@@ -132,7 +132,7 @@ def login():
     else:
         abort(403)
 
-@app.route('/api/logout')
+@app.route('/api/logout', methods=['POST'])
 @auth('view_index')
 def logout():
     del session['uid']
