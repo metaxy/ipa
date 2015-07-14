@@ -15,8 +15,13 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
   this.addQuestion = (text) => {
     $http.post(ApiUrl+'/r/'+$stateParams.roomId+'/create_question', {text: text})
     .success((data) => {
-      console.log('question created');
-      this.questions.push(data);
+      $http.get(ApiUrl+'/r/'+$stateParams.roomId)
+      .success((data) => {
+          this.questions = data.questions;
+       })
+      .error(() => {
+          Shout.error("Could not get questions");
+      });
     })
     .error((err) => {
       Shout.error('Could not create question');
