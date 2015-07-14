@@ -215,6 +215,15 @@ logout
 :Request POST data:  None
 :Response JSON:  ``{'return': 'ok'}``
 
+unvote_question
+===============
+
+:Routes:
+    ``/api/r/<room_name>/q/<int:question_id>/unvote``
+:HTTP method: POST
+:Request POST data: None
+:Response JSON: ``{"result": "ok"}``
+
 view_room
 =========
 

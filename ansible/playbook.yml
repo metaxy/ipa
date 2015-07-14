@@ -91,7 +91,7 @@
 - hosts: all
   tasks:
     - name: initialize app db
-      command: python3 /var/lib/hieronymus/server/server.py --create-db 
+      command: python3 /var/lib/hieronymus/server/server.py --create-db --debug
 
     - name: ensure app starts on boot
       service: name=hieronymus enabled=yes

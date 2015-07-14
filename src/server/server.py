@@ -346,6 +346,16 @@ def vote_question(room, question_id):
     q = Question.query.get_or_404(question_id)
     q.cast_vote(request.user)
     return jsonify(result='ok')
+    
+@app.route('/api/r/<room_name>/q/<int:question_id>/unvote', methods=['POST'])
+@auth('vote_question')
+@room
+def unvote_question(room, question_id):
+    q = Question.query.get_or_404(question_id)
+    q.votes.filter_by(user_id=request.user.id).delete()
+    db.session.add(q)
+    db.session.commit()
+    return jsonify(result='ok')
 
 @app.route('/api/r/<room_name>/s/<int:survey_id>/close', methods=['POST'])
 @auth
@@ -557,7 +567,7 @@ class Question(db.Model):
         self.votes.filter_by(user_id=user.id).delete()
         vote = Vote(self, user)
         db.session.add(vote)
-        db.session.commit()
+        db.session.commit()        
     
     def total_votes(self):
         return self.votes.count()

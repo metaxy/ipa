@@ -447,6 +447,33 @@ class ApiTest(TestCase):
             # Check result again
             r = rq.get(url+'r/test_room_access', cookies=cred)
             self.json(r, sample_json('questions', qv=1))
+            
+    @test_for('unvote_question', """
+    :HTTP method: POST
+    :Request POST data: None
+    :Response JSON: ``{"result": "ok"}`` """)
+    def testUnvoteQuestion(self):
+        with testserver() as url:
+            cred = self.login(url, 'user1')
+            # Vote
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.json(r, sample_json('questions'))
+            qid = r.json()['questions'][0]['id']
+            self.ok(rq.post(url+'r/test_room_access/q/'+str(qid)+'/vote', cookies=cred))
+            # Check result
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.json(r, sample_json('questions', qv=1))
+            # Unvote
+            self.ok(rq.post(url+'r/test_room_access/q/'+str(qid)+'/unvote', cookies=cred))
+            # Check result again
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.json(r, sample_json('questions', qv=0))
+            # Unvote again
+            self.ok(rq.post(url+'r/test_room_access/q/'+str(qid)+'/unvote', cookies=cred))
+            # Final check result
+            r = rq.get(url+'r/test_room_access', cookies=cred)
+            self.json(r, sample_json('questions', qv=0))
+            
 
     @test_for('vote_survey', """
     :HTTP method:   POST
