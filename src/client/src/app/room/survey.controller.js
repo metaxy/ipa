@@ -1,10 +1,12 @@
 'use strict';
-export default function RoomSurveyCtrl($stateParams, Room, $interval, $scope) {
+export default function RoomSurveyCtrl($stateParams, $interval, $scope) {
+
   this.surveys = [];
   
   this.update = () => {
-    Room.survey({id: $stateParams.roomId}, {filter:{where: {open: true}}})
-      .$promise.then((data) => this.surveys = data);
+  	// todo:
+    /*Room.survey({id: $stateParams.roomId}, {filter:{where: {open: true}}})
+      .$promise.then((data) => this.surveys = data);*/
   }
   
   this.update();

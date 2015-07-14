@@ -1,14 +1,33 @@
 'use strict';
-export default function QuestionCtrl($scope, $stateParams, $interval) {
+export default function QuestionCtrl($scope, $stateParams, $interval, $http, ApiUrl, Shout) {
+
   this.questions = [];
+  $http.get(ApiUrl+'/r/'+$stateParams.roomId)
+  .success((data) => {
+      this.questions = data.questions;
+   })
+  .error(() => {
+      Shout.error("Could not get questions");
+  });
+
   this.my_questions = [];
 
   this.addQuestion = (text) => {
+    $http.post(ApiUrl+'/r/'+$stateParams.roomId+'/create_question', {text: text})
+    .success((data) => {
+      console.log('question created');
+      this.questions.push(data);
+    })
+    .error((err) => {
+      Shout.error('Could not create question');
+    })
+    // todo:
     /*Room.questions.create({id: $stateParams.roomId}, {text: text}).$promise
     .then((data) => this.questions.push(data));*/
   }
 
   this.reload = () => {
+    // todo:
    /* Room.questions({id: $stateParams.roomId, filter: { order: 'votes DESC'}}).$promise
       .then((data) => this.questions = data);
 

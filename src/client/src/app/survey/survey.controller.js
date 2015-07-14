@@ -43,7 +43,13 @@ export default function SurveyCtrl($stateParams,$rootScope, $http, Shout, ApiUrl
 
   this.delete = (survey_id) => {
    //todo: Survey.deleteById({id: survey_id}).$promise.then(() => this.update());
-      
+    $http.post(ApiUrl+'/r/'+this.room+'/s/'+survey_id+'/delete')
+    .success((data) => {
+      console.log('Survey deleted');
+    })
+    .error((err) => {
+      Shout.error('Could not delete survey');
+    })
   }
 
   this.close = (survey_id) => {
@@ -52,7 +58,7 @@ export default function SurveyCtrl($stateParams,$rootScope, $http, Shout, ApiUrl
       console.log('Survey closed');
     })
     .error((err) => {
-      Shout.error('Could not delete survey');
+      Shout.error('Could not close survey');
     })
   }
 

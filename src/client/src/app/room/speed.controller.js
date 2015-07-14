@@ -1,5 +1,6 @@
 'use strict';
 export default function SpeedCtrl(Speed) {
+
 	this.chosenSpeed='';
 
   this.faster = () => {

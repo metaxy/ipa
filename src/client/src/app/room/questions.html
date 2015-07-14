@@ -12,11 +12,11 @@
           </div>
           <span flex> {{question.text}}</span>
 
-          <md-button flex=10 ng-click="questionCtrl.vote(question.id)">
+          <md-button aria-label="Vote question" flex=10 ng-click="questionCtrl.vote(question.id)">
             <fa size="1" name="{{questionCtrl.voteIcon(question.id)}}" ></fa>
           </md-button>
 
-          <md-button flex=10 ng-if="acl.can('delete_question')" ng-click="questionCtrl.delete(question.id)">
+          <md-button aria-label="Delete question" flex=10 ng-if="acl.can('delete_question')" ng-click="questionCtrl.delete(question.id)">
             <fa name="trash"></fa>
           </md-button>
         </md-list-item>
