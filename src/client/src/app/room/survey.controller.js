@@ -1,7 +1,15 @@
 'use strict';
-export default function RoomSurveyCtrl($stateParams, $interval, $scope) {
+export default function RoomSurveyCtrl($stateParams, $interval, $scope, $http, Shout, ApiUrl) {
 
   this.surveys = [];
+
+  $http.get(ApiUrl+'/r/'+$stateParams.roomId)
+  .success((data) => {
+      this.surveys = data.surveys;
+   })
+  .error(() => {
+      Shout.error("Could not get surveys");
+  });
   
   this.update = () => {
   	// todo:
