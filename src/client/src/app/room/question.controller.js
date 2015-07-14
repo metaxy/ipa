@@ -26,9 +26,6 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
     .error((err) => {
       Shout.error('Could not create question');
     })
-    // todo:
-    /*Room.questions.create({id: $stateParams.roomId}, {text: text}).$promise
-    .then((data) => this.questions.push(data));*/
   }
 
   this.reload = () => {

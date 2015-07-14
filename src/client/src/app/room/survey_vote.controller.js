@@ -2,8 +2,7 @@
 export default function SurveyVoteCtrl($stateParams, $rootScope, Shout) {
   
   $rootScope.siteTitle = "Umfrage";
-  console.log('stateParams ',$stateParams);
-  this.survey = $stateParams.survey;
+  this.survey = $stateParams.surveyId;
   /*Survey.findById({id: $stateParams.surveyId});*/
   this.options = 
   /*Survey.surveyOptions({id: $stateParams.surveyId});*/

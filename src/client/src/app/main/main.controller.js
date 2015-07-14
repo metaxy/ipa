@@ -25,6 +25,9 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
   this.all_users = $http.get(ApiUrl+'/list_users');
 
   this.joinRoom = (room_name, room_password) => {
+    if(_.isUndefined(room_password)) {
+      room_password = "";
+    }
     $http.post(ApiUrl+'/r/'+ room_name + '/enter' , {passkey : room_password})
     .success((data) => {
         console.log('Entered Room');
