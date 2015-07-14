@@ -114,6 +114,21 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
       });
   }
 
+  this.deleteRole = (role_name) => {
+    if(_.isUndefined(role_name)) {
+      Shout.error("Error: Choose a rolename");
+      return;
+    }
+    $http.post(ApiUrl+'/delete_role', {role : role_name})
+      .success((data) => {
+        Shout.success('Role successfully deleted');
+      })
+      .error((err) => {
+        Shout.error('There are users assigned to this role - can not delete this role.');
+      });
+
+}
+
     $rootScope.selectedRights = [];
     $rootScope.toggle = function (item, list) {
       var idx = list.indexOf(item);
@@ -124,3 +139,4 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
       return list.indexOf(item) > -1;
     };
 }
+

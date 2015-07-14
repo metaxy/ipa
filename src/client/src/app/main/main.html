@@ -106,3 +106,15 @@
     </md-card-content>
   </md-card>
 </div>
+
+<div ng-if="acl.can('delete_role')">
+  <md-card>
+    <md-card-content>
+      <h3> Rolle löschen </h3>
+      <md-select placeholder="Rollenname" ng-model="role.name">
+        <md-option ng-repeat="role in mainCtrl.all_roles">{{role.name}}</md-option>
+      </md-select>
+      <md-button class="md-primary md-raised" ng-click="mainCtrl.deleteRole(role.name)">löschen</md-button>
+    </md-card-content>
+  </md-card>
+</div>
