@@ -49,7 +49,25 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
   }
 
   this.vote = (question_id) => {
-    this.my_questions.push(question_id);
+    var i = this.my_questions.indexOf(question_id);
+    if(i == -1) {
+      this.my_questions.push(question_id);
+    } else {
+      this.my_questions.splice(i,1);
+    }
+    $http.post(ApiUrl+'/r/'+$stateParams.roomId+'/q/'+question_id+'/vote')
+    .success((data) => {
+      $http.get(ApiUrl+'/r/'+$stateParams.roomId)
+      .success((data) => {
+          this.questions = data.questions;
+       })
+      .error(() => {
+          Shout.error("Could not get questions");
+      });
+    })
+    .error((err) => {
+      Shout.error('Could not create question');
+    })
    //todo: Account.vote({question_id: question_id});
   }
 
