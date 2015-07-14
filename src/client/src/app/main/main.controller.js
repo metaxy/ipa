@@ -70,4 +70,14 @@ export default function MainCtrl($state,$rootScope, Shout, $http, ApiUrl) {
       });
   }
 
+  this.editRole = (role_name) => {
+    /*$http.post(ApiUrl+'/role/'+role_name, {perms : })
+      .success((data) => {
+
+      })
+      .error((err) => {
+
+      });*/
+  } 
+
 }

@@ -1,6 +1,5 @@
 'use strict';
 export default function QuestionCtrl($scope, $stateParams, $interval, $http, ApiUrl, Shout) {
-
   this.questions = [];
   $http.get(ApiUrl+'/r/'+$stateParams.roomId)
   .success((data) => {
@@ -13,6 +12,10 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
   this.my_questions = [];
 
   this.addQuestion = (text) => {
+    if(_.isUndefined(text) || text.length == 0) {
+      Shout.error('Question cannot be empty');
+      return;
+    } 
     $http.post(ApiUrl+'/r/'+$stateParams.roomId+'/create_question', {text: text})
     .success((data) => {
       $http.get(ApiUrl+'/r/'+$stateParams.roomId)
@@ -72,7 +75,22 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
   }
 
   this.delete = (question_id) => {
-   //todo: Question.deleteById({id: question_id}).$promise.then(() => this.reload());
+    /*
+    Routes: /api/r/<room_name>/q/<int:question_id>/delete HTTP method: POST
+    Request POST data: None
+    Response JSON: {"result":
+    */
+    $http.post(ApiUrl+'/r/'+$stateParams.roomId+'/q/'+question_id+'/delete')
+    .success((data) => {
+      for(var i  in this.questions) {
+        if(this.questions[i].id == question_id) {
+          this.questions.splice(i,1);
+        }  
+      }
+    })
+    .error((err) => {
+      Shout.error('Could not delete question');
+    })
   }
 
   this.reload();

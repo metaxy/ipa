@@ -12,6 +12,7 @@ export default function SurveyCtrl($stateParams,$rootScope, $http, Shout, ApiUrl
   $http.get(ApiUrl+'/r/'+this.room)
   .success((data) => {
       this.surveys = data.surveys;
+      console.log('surveys ', data.surveys);
    })
   .error(() => {
       Shout.error("Could not get surveys");
@@ -46,6 +47,8 @@ export default function SurveyCtrl($stateParams,$rootScope, $http, Shout, ApiUrl
     $http.post(ApiUrl+'/r/'+this.room+'/s/'+survey_id+'/delete')
     .success((data) => {
       console.log('Survey deleted');
+      var i = this.surveys.indexOf(survey_id);
+      this.surveys.splice(i,1);
     })
     .error((err) => {
       Shout.error('Could not delete survey');

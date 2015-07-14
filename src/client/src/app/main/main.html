@@ -75,8 +75,8 @@
 <div ng-if="acl.can('edit_role')">
   <md-card>
     <md-card-content>
-      <h3> Rolle bearbeiten</h3>
-      <md-select placeholder="Rollenname" ng-model="ctrl.userState">
+      <h3> Role bearbeiten</h3>
+      <md-select placeholder="Rolenname" ng-model="ctrl.userState">
         <md-option ng-repeat="role in mainCtrl.all_roles">{{role.name}}</md-option>
       </md-select>
       <label>
