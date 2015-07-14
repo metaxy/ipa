@@ -3,8 +3,8 @@
     <h3> Benutzer </h3>
     <md-list>
       <md-list-item ng-repeat="user in userCtrl.users">
-       <a ui-sref="user_edit({userId: user.name})" style="padding: 0 10px;width: 15%;">{{user.name}}</a>
-       <span style="width: 10%">{{user.role}}</span>
+       <a ui-sref="user_edit({userId: user.name})" style="padding: 0 10px;width: 15%;min-width: 150px">{{user.name}}</a>
+       <span style="width: 10%;min-width: 100px">{{user.role}}</span>
        <md-button aria-label="Delete" flex=10 ng-if="acl.can('delete_account')" ng-click="userCtrl.delete(user.name)">
           <fa name="trash" ></fa>
        </md-button>
