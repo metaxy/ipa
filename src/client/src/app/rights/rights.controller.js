@@ -1,8 +1,6 @@
 'use strict';
-export default function RightsCtrl($state,$rootScope, Shout, $http, ApiUrl) {
-  this.optionalRights = ["create_question", "join_lecture", "vote_tempo", "vote_question", "vote_survey", "manage_lecture", "create_survey", "create_room", "view_tempo", "close_survey", "delete_question", "create_account", "delete_account", "assign_role", "create_role", "edit_role", "delete_role", "list_roles", "list_users"];
-
-
+export default function RightsCtrl($state,$rootScope, Shout, $http, ApiUrl, AllRights, $scope) {
+  this.optionalRights = AllRights;
   $rootScope.siteTitle = "Rechte";
 
   $http.get(ApiUrl+'/list_users')
@@ -71,13 +69,13 @@ export default function RightsCtrl($state,$rootScope, Shout, $http, ApiUrl) {
 
 }
 
-    $rootScope.selectedRights = [];
-    $rootScope.toggle = function (item, list) {
+    $scope.selectedRights = [];
+    $scope.toggle = function (item, list) {
       var idx = list.indexOf(item);
       if (idx > -1) list.splice(idx, 1);
       else list.push(item);
     };
-    $rootScope.exists = function (item, list) {
+    $scope.exists = function (item, list) {
       return list.indexOf(item) > -1;
     };
 }

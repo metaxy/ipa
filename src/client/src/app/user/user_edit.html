@@ -1,11 +1,7 @@
 <md-card>
   <md-card-content>
-    <h3> {{user.email}} </h3>
-    
-    <md-input-container flex>
-      <label> Email </label>
-      <input type="text" ng-model="userCtrl.user.email"></input>
-    </md-input-container>
+    <h3> {{user.name}} </h3>
+
     <md-input-container flex>
       <label> Name</label>
       <input type="text" ng-model="userCtrl.user.name"></input>
@@ -14,6 +10,10 @@
       <label>Password</label>
       <input type="password" ng-model="userCtrl.user.password"></input>
     </md-input-container>
+    <md-select placeholder="Role" ng-model="userCtrl.user.role">
+         <md-option ng-repeat="role in userCtrl.roles" value="{{role.name}}">{{role.name}}</md-option>
+    </md-select>
+
     <div flex layout="row">
       <md-button class="md-raised md-primary" ng-click="userCtrl.save()">Speichern</md-button>
       <md-button class="md-raised" ng-click="$state.go('user')">Abbrechen</md-button>

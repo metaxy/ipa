@@ -14,6 +14,8 @@ import SurveyCtrl from './survey/survey.controller';
 import SurveysCtrl from './survey/surveys.controller';
 import SurveyViewCtrl from './survey/survey_view.controller';
 import RightsCtrl from './rights/rights.controller';
+var allRights = ["create_question", "join_lecture", "vote_tempo", "vote_question", "vote_survey", "manage_lecture", "create_survey", "create_room", "view_tempo", "close_survey", "delete_question", "create_account", "delete_account", "assign_role", "create_role", "edit_role", "delete_role", "list_roles", "list_users"];
+
 
 angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
                'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial',
@@ -35,6 +37,7 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
   .provider('LfAcl', LfAcl)
   .factory('Shout', Shout)
   .constant('ApiUrl', 'http://localhost:8080/api')
+  .constant('AllRights', allRights)
   .config(function ($stateProvider, $urlRouterProvider, $locationProvider, $mdThemingProvider, $httpProvider) {
     $httpProvider.defaults.withCredentials = true;
     $mdThemingProvider.theme('default')
@@ -101,7 +104,7 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
         }
       })
       .state('user_edit', {
-        url: '/user_edit/:userId',
+        url: '/user_edit/:userName',
         templateUrl: 'app/user/user_edit.html',
         controller: 'UserEditCtrl as userCtrl',
         acl: {
