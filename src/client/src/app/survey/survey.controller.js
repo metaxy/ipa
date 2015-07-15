@@ -1,22 +1,11 @@
 'use strict';
 export default function SurveyCtrl($stateParams,$rootScope, $http, Shout, ApiUrl, $state) {
-  /*this.room = Room.findById({id: $stateParams.roomId}).$promise
-    .then((data) => {
-      $rootScope.siteTitle = "Umfragen in " + data.name;
-      return data;
-    });
-  */
-  this.room = $stateParams.roomId;
+  this.room = $stateParams.roomName;
   $rootScope.siteTitle = "Umfragen in " + this.room;
 
-  $http.get(ApiUrl+'/r/'+this.room)
-  .success((data) => {
-      this.surveys = data.surveys;
-      console.log('surveys ', data.surveys);
-   })
-  .error(() => {
-      Shout.error("Could not get surveys");
-  });
+  $http.get(ApiUrl+'/r/'+$stateParams.roomName)
+    .success((data) => this.surveys = data.surveys)
+    .error(() => Shout.error("Konnte die Umfragen nicht laden"));
 
   this.options = [];
 
@@ -32,21 +21,20 @@ export default function SurveyCtrl($stateParams,$rootScope, $http, Shout, ApiUrl
 
   this.newSurvey = (title) => {
     var survey = {title: title, options: this.options};
-		$http.post(ApiUrl+'/r/'+this.room+'/create_survey', survey)
+		$http.post(ApiUrl+'/r/'+$stateParams.roomName+'/create_survey', survey)
 		.success((data) => {
-      console.log('Survey created');
+      Shout.success("Umfrage erstellt");
       this.update();
     })
 		.error((err) => {
-      Shout.error('Could not create survey');
+      Shout.error("Konnte Umfrage nicht erstellen");
     })
   }
 
   this.delete = (survey_id) => {
-   //todo: Survey.deleteById({id: survey_id}).$promise.then(() => this.update());
     $http.post(ApiUrl+'/r/'+this.room+'/s/'+survey_id+'/delete')
     .success((data) => {
-      console.log('Survey deleted');
+      console.log('Umfrage gelöscht');
       var i = this.surveys.indexOf(survey_id);
       this.surveys.splice(i,1);
     })
@@ -57,12 +45,8 @@ export default function SurveyCtrl($stateParams,$rootScope, $http, Shout, ApiUrl
 
   this.close = (survey_id) => {
     $http.post(ApiUrl+'/r/'+this.room+'/s/'+survey_id+'/close')
-    .success((data) => {
-      console.log('Survey closed');
-    })
-    .error((err) => {
-      Shout.error('Could not close survey');
-    })
+      .success((data) => Shout.success("Umfrage geschlossen"))
+      .error((err) => Shout.error('Konnte Umfrage nicht schließen'))
   }
 
   this.update = () => {

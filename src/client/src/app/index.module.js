@@ -80,7 +80,7 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
         }
       })
       .state('survey', {
-        url: '/survey/room/:roomId',
+        url: '/survey/room/:roomName',
         templateUrl: 'app/survey/survey.html',
         controller: 'SurveyCtrl as surveyCtrl',
         acl: {
@@ -88,7 +88,7 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
         }
       })
       .state('survey_view', {
-        url: '/survey/view/:surveyId',
+        url: '/survey/view/:roomName/:surveyId',
         templateUrl: 'app/survey/survey_view.html',
         controller: 'SurveyViewCtrl as surveyCtrl',
         acl: {

@@ -1,5 +1,5 @@
 'use strict';
-export default function SurveyCtrl($stateParams, $rootScope, $scope) {
+export default function SurveyCtrl($stateParams, $rootScope, $scope, $http, ApiUrl) {
   this.open = false;
   this.data = [];
   this.opt = {thickness: 20};
@@ -24,29 +24,38 @@ export default function SurveyCtrl($stateParams, $rootScope, $scope) {
     return "play";
   }
   this.toggleSurvey = () => {
-    this.survey.open = !this.survey.open;
-    this.open = !this.open;
-    //todo: Survey.upsert(this.survey);
+    if(this.open === true) {
+      this.close();
+    }
   }
+
+  this.close = (survey_id) => {
+    this.open = false;
+    $http.post(ApiUrl+'/r/'+this.room+'/s/'+survey_id+'/close')
+      .success((data) => Shout.success("Umfrage geschlossen"))
+      .error((err) => Shout.error('Konnte Umfrage nicht schließen'))
+  }
+
 
   this.update = () => {
-    /*Survey.findById({id: $stateParams.surveyId}).$promise.then((data) => {
-      this.survey = data;
-      this.open = data.open;
-      $rootScope.siteTitle = "Umfrage: " + data.title;
-    });
-    Survey.surveyOptions({id: $stateParams.surveyId}).$promise.then((data) => {
-      this.options = data;
-      var data = [];
-      this.options.forEach((d,i) => {
-        console.log(this.colors[i]);
-        data.push({label: d.title, value: d.votes, color : this.colors[i]});
+    $http.get(ApiUrl+'/r/'+$stateParams.roomName)
+      .success((data) => {
+        for(let survey of data.surveys) {
+          console.log(survey.title);
+          if(survey.id == $stateParams.surveyId) {
+            this.survey = survey;
+            this.open = survey.open;
+            $rootScope.siteTitle = "Umfrage: " + survey.name;
+            this.options = data;
+            var data = [];
+            for(let option of survey.options) {
+              //data.push({label: d.title, value: d.votes, color : this.colors[i]});
+            }
+            this.data = data;
+          }
+        }
       });
-      this.data = data;
-
-    });*/
   }
   this.update();
-
 
 }

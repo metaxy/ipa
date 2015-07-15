@@ -1,9 +1,9 @@
 <md-card>
   <md-card-content>
-    <h3> Meine Räume </h3>
+    <h3> Verfügbare Räume </h3>
     <ul>
-      <li ng-repeat="room in surveysCtrl.my_rooms">
-      <a ui-sref="survey({roomId: room})">{{room}}</a>
+      <li ng-repeat="room in surveysCtrl.rooms">
+      <a ui-sref="survey({roomName: room})">{{room}}</a>
       </li>
     </ul>
   </md-card-content>

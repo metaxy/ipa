@@ -4,7 +4,7 @@
       <h3> Verfügbare Umfragen</h3>
       <ul>
         <li ng-repeat="survey in surveyCtrl.surveys">
-          <a ui-sref="survey_view({surveyId: survey.id})">{{survey.title}}</a>
+          <a ui-sref="survey_view({surveyId: survey.id, roomName: surveyCtrl.room})">{{survey.title}}</a>
           <md-button aria-label="Close Survey" ng-click="surveyCtrl.close(survey.id)"><fa name="close"></fa></md-button>
           <md-button aria-label="Delete Survey" ng-click="surveyCtrl.delete(survey.id)"><fa name="trash"></fa></md-button>
         </li>
