@@ -21,6 +21,7 @@
     "gulp-useref": "~1.2.0",
     "gulp-util": "~3.0.5",
     "gulp-ng-annotate": "~1.0.0",
+    "gulp-protractor": "~1.0.0",
     "gulp-replace": "~0.5.3",
     "gulp-rename": "~1.2.2",
     "gulp-rev": "~5.0.0",
@@ -35,6 +36,10 @@
     "babel-loader": "~5.1.4",
     "main-bower-files": "~2.8.0",
     "merge-stream": "~0.1.7",
+    "karma": "~0.12.37",
+    "karma-jasmine": "~0.3.6",
+    "karma-ng-html2js-preprocessor": "~0.1.2",
+    "karma-phantomjs-launcher": "~0.2.0",
     "jshint-stylish": "~2.0.0",
     "wiredep": "~2.2.2",
     "concat-stream": "~1.5.0",
@@ -43,6 +48,7 @@
     "http-proxy-middleware": "~0.0.5",
     "chalk": "~1.0.0",
     "uglify-save-license": "~0.4.1",
+    "protractor": "~2.1.0",
     "wrench": "~1.5.8"
   },
   "engines": {
