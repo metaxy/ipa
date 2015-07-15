@@ -7,20 +7,20 @@
     <md-button ui-sref="user" aria-label="User" class="md-icon-button" ng-if="acl.can('create_account') || acl.can('delete_account')">
       <fa name="user" size="2"></fa>
     </md-button>
-    <md-button ng-if="acl.can('delete_role')" class="md-icon-button" aria-label="Settings">
+    <md-button ng-if="acl.can('delete_role')" ui-sref="rights" class="md-icon-button" aria-label="Settings">
       <fa name="lock" size="2"></fa>
     </md-button>
     <md-button ng-if="acl.can('create_survey')" ui-sref="surveys" class="md-icon-button" aria-label="Settings">
       <fa name="question" size="2"></fa>
     </md-button>
-    
+
     <div flex layout="row" layout-align="end center">
       {{navbarCtrl.me.email}}
       <md-button ng-click="navbarCtrl.logout()" class="md-icon-button" aria-label="Settings">
         <fa name="power-off" size="2"></fa>
       </md-button>
     </div>
-    
+
   </div>
 </md-toolbar>
 

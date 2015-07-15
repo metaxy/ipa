@@ -1,6 +1,5 @@
 'use strict';
-export default function UserCtrl($rootScope, $http, ApiUrl) {
-
+export default function UserCtrl($rootScope, $http, ApiUrl, Shout) {
   $rootScope.siteTitle = "Benutzer";
 
   this.reload = () => {
@@ -14,4 +13,14 @@ export default function UserCtrl($rootScope, $http, ApiUrl) {
       .error((err) => Shout.error(err));
   }
 
+  this.createAccount = (account_name, account_password) => {
+    $http.post(ApiUrl+'/create_account', {name : account_name, password: account_password})
+      .success((data) => {
+        Shout.success('Account created');
+        this.reload();
+      })
+      .error((err) => {
+        Shout.error('Could not create account');
+      });
+  }
 }

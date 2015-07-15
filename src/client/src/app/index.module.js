@@ -13,7 +13,7 @@ import UserEditCtrl from './user/user_edit.controller';
 import SurveyCtrl from './survey/survey.controller';
 import SurveysCtrl from './survey/surveys.controller';
 import SurveyViewCtrl from './survey/survey_view.controller';
-import AdminCtrl from './admin/admin.controller';
+import RightsCtrl from './rights/rights.controller';
 
 angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
                'ngSanitize', 'ngResource', 'ui.router', 'ngMaterial',
@@ -31,7 +31,7 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
   .controller('SurveysCtrl', SurveysCtrl)
   .controller('SurveyViewCtrl', SurveyViewCtrl)
   .controller('SurveyVoteCtrl', SurveyVoteCtrl)
-  .controller('AdminCtrl', AdminCtrl)
+  .controller('RightsCtrl', RightsCtrl)
   .provider('LfAcl', LfAcl)
   .factory('Shout', Shout)
   .constant('ApiUrl', 'http://localhost:8080/api')
@@ -114,6 +114,14 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
         controller: 'LoginCtrl as loginCtrl',
         acl: {
           needRights: []
+        }
+      })
+      .state('rights', {
+        url: '/rights',
+        templateUrl: 'app/rights/rights.html',
+        controller: 'RightsCtrl as rightsCtrl',
+        acl: {
+          needRights: ['assign_role']
         }
       })
 
