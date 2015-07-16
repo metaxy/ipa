@@ -1,18 +1,8 @@
 'use strict';
-function makeid()
-{
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < 5; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-}
 
 describe('test the home', function () {
   beforeEach(function () {
-    browser.get('#/');
+    browser.get('#/rights');
   });
 
 
@@ -31,15 +21,9 @@ describe('test the home', function () {
     expect(browser.getCurrentUrl()).toContain("/rights");
   });
   
-  it('navgiation to rights should work', function () {
+   it('navgiation to rights should work', function () {
     browser.findElement(by.css('.button-surveys')).click();
     expect(browser.getCurrentUrl()).toContain("/survey");
-  });
-  
-  it('should be able to create room', function () {
-    browser.findElement(by.model('room_name')).sendKeys(makeid());
-    browser.findElement(by.model('room_passkey')).sendKeys(makeid());
-    browser.findElement(by.css('.button-createroom')).click();
   });
 
 });

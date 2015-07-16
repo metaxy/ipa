@@ -1,16 +1,16 @@
 <md-toolbar flex class="navbar md-whiteframe-z1" ng-controller="NavbarCtrl as navbarCtrl">
   <div class="md-toolbar-tools" flex layout="row">
     <!--h2>{{$root.siteTitle}}</h2-->
-    <md-button ui-sref="home" class="md-icon-button" aria-label="Settings">
+    <md-button ui-sref="home" class="md-icon-button button-home" aria-label="Settings">
       <fa name="home" size="2"></fa>
     </md-button>
-    <md-button ui-sref="user" aria-label="User" class="md-icon-button" ng-if="acl.can('create_account') || acl.can('delete_account')">
+    <md-button ui-sref="user" aria-label="User" class="md-icon-button button-user" ng-if="acl.can('create_account') || acl.can('delete_account')">
       <fa name="user" size="2"></fa>
     </md-button>
-    <md-button ng-if="acl.can('delete_role')" ui-sref="rights" class="md-icon-button" aria-label="Settings">
+    <md-button ng-if="acl.can('delete_role')" ui-sref="rights" class="md-icon-button button-rights" aria-label="Settings">
       <fa name="lock" size="2"></fa>
     </md-button>
-    <md-button ng-if="acl.can('create_survey')" ui-sref="surveys" class="md-icon-button" aria-label="Settings">
+    <md-button ng-if="acl.can('create_survey')" ui-sref="surveys" class="md-icon-button button-surveys" aria-label="Settings">
       <fa name="question" size="2"></fa>
     </md-button>
 
