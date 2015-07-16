@@ -22,8 +22,8 @@ exports.config = {
   onPrepare: function() {
     browser.get('#/login');
 
-    browser.findElement(by.model('loginCtrl.username')).sendKeys('admin');
-    browser.findElement(by.model('loginCtrl.password')).sendKeys('admin');
+    browser.findElement(by.model('username')).sendKeys('admin');
+    browser.findElement(by.model('password')).sendKeys('admin');
     browser.findElement(by.css('.md-button')).click();
 
     // Login takes some time, so wait until it's done.
@@ -31,7 +31,7 @@ exports.config = {
     // index.html.
     return browser.wait(function() {
       return browser.getCurrentUrl().then(function(url) {
-        return /home/.test(url);
+        return true;
       });
     }, 10000);
   }

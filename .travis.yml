@@ -2,6 +2,11 @@ language: node_js
 node_js:
   - iojs
 sudo: false
+addons:
+  apt:
+    packages:
+    - python3.4
+    - python-pip
 cache:
   directories:
     - src/client/node_modules
@@ -9,6 +14,7 @@ cache:
     - $HOME/.nvm
 before_install:
   - npm install -g bower gulp
+  - pip install requests flask flask-sqlalchemy
 install:
   - cd src/client && npm install && bower install
 before_script:
@@ -16,5 +22,6 @@ before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - sleep 2
+  - python3 ../server/server.py -d --create-server && python3 ../server/server.py -d
 script:
   - gulp protractor

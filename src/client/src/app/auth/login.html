@@ -2,13 +2,13 @@
     <div class="login-form">
       <h3>LiFi Anmeldung<h3>
       <md-input-container flex>
-        <label>EMail</label>
-        <input ng-model="email">
+        <label>Nutzername</label>
+        <input ng-model="username">
       </md-input-container>
       <md-input-container flex>
         <label >Passwort</label>
         <input type="password" ng-model="password"  ng-keyup="$event.keyCode == 13 ? loginCtrl.login(email, password) : null">
       </md-input-container>
-      <md-button class="md-raised md-primary" ng-click="loginCtrl.login(email, password)">Login</md-button>
+      <md-button class="md-raised md-primary" ng-click="loginCtrl.login(username, password)">Login</md-button>
     </div>
 </div>
