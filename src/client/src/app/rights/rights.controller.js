@@ -15,6 +15,7 @@ export default function RightsCtrl($state,$rootScope, Shout, $http, ApiUrl, AllR
     $http.post(ApiUrl+'/create_role', {role : role_name})
       .success((data) => {
         Shout.success('Role created');
+        this.reload();
       })
       .error((err) => {
         Shout.error('Could not create role');
@@ -68,7 +69,6 @@ export default function RightsCtrl($state,$rootScope, Shout, $http, ApiUrl, AllR
       });
 
 }
-
     $scope.selectedRights = [];
     $scope.toggle = function (item, list) {
       var idx = list.indexOf(item);
