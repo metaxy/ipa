@@ -9,7 +9,7 @@ from warnings import warn
 
 import requests
 from sqlalchemy import func
-from flask import Flask, request, session, redirect, abort, render_template, url_for, jsonify
+from flask import Flask, request, session, abort, render_template, url_for, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 
 class Perms(Enum):
@@ -141,11 +141,6 @@ def perform_login(pw_form, pw):
 
 ######################
         
-@app.route('/')
-@auth
-def view_index():
-    return redirect('/static/index.html')
-
 @app.route('/api/login', methods=['POST'])
 def login():
     # return status codes
@@ -182,7 +177,7 @@ def create_room():
     db.session.add(room)        
     db.session.add(request.user)
     db.session.commit()
-    return redirect(url_for('view_room', room_name=room.name))
+    return jsonify(result='ok')
 
 @app.route('/api/create_account', methods=['POST'])
 @auth
