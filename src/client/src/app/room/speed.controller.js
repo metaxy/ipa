@@ -1,22 +1,27 @@
 'use strict';
-export default function SpeedCtrl(Speed) {
+export default function SpeedCtrl($http, ApiUrl, $stateParams, $interval, $scope) {
+  this.reload = () => {
+    $http.get(ApiUrl+'/r/'+$stateParams.roomId+'/t')
+      .success((data) => {
+        this.up = data.up;
+        this.down = data.down;
+      })
+      .error(() => Shout.error("Konnte die Geschwindigkeit nicht bekommen."));
+  }
+  this.reload();
 
-	this.chosenSpeed='';
+
 
   this.faster = () => {
-    Speed.faster();
-    this.chosenSpeed = 'Schneller';
-  }
-  
-  this.slower = () => {
-    Speed.slower();
-    this.chosenSpeed = 'Langsamer';
+    $http.post(ApiUrl + '/r/' + $stateParams.roomId + '/t/up');
   }
 
-  this.reset = () => {
-  	this.chosenSpeed = '';
-  	this.reload();
+  this.slower = () => {
+    $http.post(ApiUrl + '/r/' + $stateParams.roomId + '/t/down');
   }
-  
-  
+
+  this.intervalPromise = $interval(this.reload, 5000);
+  $scope.$on('$destroy', () => $interval.cancel(this.reload));
+
+
 }

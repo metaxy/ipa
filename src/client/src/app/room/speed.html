@@ -1,8 +1,14 @@
-<md-card ng-controller="SpeedCtrl as speedCtrl" ng-if="acl.can('regulate_speed')">
+<div ng-controller="SpeedCtrl as speedCtrl">
+<md-card ng-if="acl.can('view_tempo')">
+
+  <md-card-content>
+    <h2>UP : {{speedCtrl.up}} | DOWN: {{speedCtrl.down}}</h2>
+  </md-card-content>
+</md-card>
+
+<md-card ng-if="acl.can('vote_tempo')">
 <md-card-content>
 <h2>Geschwindigkeit regulieren</h2>
-
-<div ng-if="speedCtrl.chosenSpeed == ''" layout="row">
   <md-button class="md-raised md-primary" ng-click="speedCtrl.faster()">
     <fa name="plus"></fa> schneller
   </md-button>
@@ -11,13 +17,7 @@
   </md-button>
 </div>
 
-<div ng-if="speedCtrl.chosenSpeed != ''">
-	<p><strong>Ausgewählte Geschwindigkeit: &emsp;</strong>{{ speedCtrl.chosenSpeed }}</p>
-	<md-button class="md-raised md-primary" ng-click="speedCtrl.reset()">
-    ändern
-  </md-button>
-</div>
-
 </md-card-content>
 </md-card>
+</div>
 

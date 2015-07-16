@@ -1,19 +1,15 @@
 <md-card>
-<md-card-content>
-<h2>Frage: {{survey.title}}</h2>
+  <md-card-content>
+    <h2>Frage: {{survey.title}}</h2>
 
+    <md-list>
+      <md-list-item ng-repeat="option in surveyCtrl.options">
+        <span>{{$index}} </span>
+        <span><b>{{option.title}}</b></span>
+        <span> <md-button ng-click="surveyCtrl.vote(option.id)"> <fa name="check"></fa></md-button></span>
+        <md-divider></md-divider>
+      </md-list-item>
+    </md-list>
 
-<md-list>
-  <md-list-item ng-repeat="option in surveyCtrl.options ">
-    <span>{{$index}} </span>
-    <span><b>{{option.title}}</b></span>
-    <span> <md-button ng-click="surveyCtrl.vote(option.id)"> <fa name="check"></fa></md-button></span>
-
-    <md-divider></md-divider>
-  </md-list-item>
-</md-list>
-
-
-
-</md-card>
+  </md-card>
 </md-card-content>

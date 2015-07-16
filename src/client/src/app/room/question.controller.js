@@ -1,13 +1,15 @@
 'use strict';
 export default function QuestionCtrl($scope, $stateParams, $interval, $http, ApiUrl, Shout) {
   this.questions = [];
-  $http.get(ApiUrl+'/r/'+$stateParams.roomId)
-  .success((data) => {
-      this.questions = data.questions;
-   })
-  .error(() => {
-      Shout.error("Could not get questions");
-  });
+
+  this.reload = () => {
+    $http.get(ApiUrl+'/r/'+$stateParams.roomId)
+      .success((data) => {
+        this.questions = data.questions;
+      })
+      .error(() => Shout.error("Could not get questions"));
+  }
+  this.reload();
 
   this.my_questions = [];
 
@@ -15,29 +17,10 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
     if(_.isUndefined(text) || text.length == 0) {
       Shout.error('Question cannot be empty');
       return;
-    } 
+    }
     $http.post(ApiUrl+'/r/'+$stateParams.roomId+'/create_question', {text: text})
-    .success((data) => {
-      $http.get(ApiUrl+'/r/'+$stateParams.roomId)
-      .success((data) => {
-          this.questions = data.questions;
-       })
-      .error(() => {
-          Shout.error("Could not get questions");
-      });
-    })
-    .error((err) => {
-      Shout.error('Could not create question');
-    })
-  }
-
-  this.reload = () => {
-    // todo:
-   /* Room.questions({id: $stateParams.roomId, filter: { order: 'votes DESC'}}).$promise
-      .then((data) => this.questions = data);
-
-    Account.voted().$promise
-      .then((data) => this.my_questions = data.questions);*/
+      .success(() => this.reload())
+      .error((err) => Shout.error('Could not create question'))
   }
 
   this.voted = (question_id) => {
@@ -59,19 +42,8 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
       this.my_questions.splice(i,1);
     }
     $http.post(ApiUrl+'/r/'+$stateParams.roomId+'/q/'+question_id+'/vote')
-    .success((data) => {
-      $http.get(ApiUrl+'/r/'+$stateParams.roomId)
-      .success((data) => {
-          this.questions = data.questions;
-       })
-      .error(() => {
-          Shout.error("Could not get questions");
-      });
-    })
-    .error((err) => {
-      Shout.error('Could not create question');
-    })
-   //todo: Account.vote({question_id: question_id});
+      .success(() => this.reload())
+      .error(() => Shout.error('Could not create question'))
   }
 
   this.delete = (question_id) => {
@@ -85,7 +57,7 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
       for(var i  in this.questions) {
         if(this.questions[i].id == question_id) {
           this.questions.splice(i,1);
-        }  
+        }
       }
     })
     .error((err) => {
@@ -93,7 +65,6 @@ export default function QuestionCtrl($scope, $stateParams, $interval, $http, Api
     })
   }
 
-  this.reload();
   this.intervalPromise = $interval(this.reload, 3000);
   $scope.$on('$destroy', () => $interval.cancel(this.intervalPromise));
 }
