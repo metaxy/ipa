@@ -8,4 +8,6 @@ src/server/__pycache__
 *.nav
 *.snm
 *.toc
+*.vrb
+_minted-*
 src/server/*.tex
