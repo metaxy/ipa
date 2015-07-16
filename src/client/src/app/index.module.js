@@ -129,7 +129,6 @@ angular.module('lifi', ['ngAnimate', 'ngCookies', 'ngTouch',
       })
 
     $urlRouterProvider.otherwise('/');
-    //$locationProvider.html5Mode(true)
   })
 
   .run(($rootScope, $state, LfAcl, $http, ApiUrl) => {
