@@ -12,11 +12,11 @@ export default function SurveyCtrl($stateParams,$rootScope, $http, Shout, ApiUrl
   this.visible_create_from = false;
   this.startNewSurvey = () => {
     this.visible_create_from = true;
-    this.options = [{title: ""}];
+    this.options = [""];
   }
 
   this.newOption = () => {
-    this.options.push({title: ""});
+    this.options.push("");
   }
 
   this.newSurvey = (title) => {

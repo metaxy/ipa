@@ -4,11 +4,11 @@
       <div flex="33">
         Optionen:
         <md-list>
-          <md-list-item ng-repeat="option in surveyCtrl.options">
-            <div class="question-votes-cricle">
-              {{option.votes}}
+          <md-list-item ng-repeat="option in surveyCtrl.survey.options">
+            <div class="question-votes-cricle" ng-if="surveyCtrl.survey.closed">
+              {{1}}
             </div>
-            {{option.title}}
+            {{option}}
           </md-list-item>
         </md-list>
       </div>

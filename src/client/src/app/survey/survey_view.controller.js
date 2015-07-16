@@ -41,17 +41,18 @@ export default function SurveyCtrl($stateParams, $rootScope, $scope, $http, ApiU
     $http.get(ApiUrl+'/r/'+$stateParams.roomName)
       .success((data) => {
         for(let survey of data.surveys) {
-          console.log(survey.title);
           if(survey.id == $stateParams.surveyId) {
             this.survey = survey;
-            this.open = survey.open;
             $rootScope.siteTitle = "Umfrage: " + survey.name;
-            this.options = data;
-            var data = [];
-            for(let option of survey.options) {
-              //data.push({label: d.title, value: d.votes, color : this.colors[i]});
+            if(survey.closed) {
+              var data = [];
+              var i = 0;
+              for(let option of survey.options) {
+                data.push({label: option, value: 1, color : this.colors[i]});
+                i += 1;
+              }
+              this.data = data;
             }
-            this.data = data;
           }
         }
       });
