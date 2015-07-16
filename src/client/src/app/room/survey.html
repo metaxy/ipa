@@ -4,7 +4,7 @@
 <h2>Offene Umfragen</h2>
 <md-list>
   <md-list-item ng-repeat="survey in surveyCtrl.surveys">
-    <a ui-sref="room_survey({surveyId: survey.id})">
+    <a ui-sref="room_survey({roomName: surveyCtrl.roomName, surveyId: survey.id})">
       {{survey.title}}
     </a>
   </md-list-item>

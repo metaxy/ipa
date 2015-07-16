@@ -1,9 +1,17 @@
 'use strict';
-export default function SurveyVoteCtrl($stateParams, $rootScope, Shout) {
-  console.log('$stateParams ', $stateParams);
+export default function SurveyVoteCtrl($stateParams, $rootScope, Shout, $http, ApiUrl) {
   $rootScope.siteTitle = "Umfrage";
-  this.survey = $stateParams.surveyId;
+  $http.get(ApiUrl+'/r/'+$stateParams.roomName)
+      .success((data) => {
+        for(let survey of data.surveys) {
+          if(survey.id == $stateParams.surveyId) {
+            console.log(survey);
+            this.survey = survey;
+          }
+        }
+      });
 
-  this.vote = (survey_option_id) => {
+  this.vote = (option) => {
+    $http.post(ApiUrl + '/r/'+ $stateParams.roomName + '/s/' + $stateParams.surveyId + '/vote', {option: option});
   }
 }

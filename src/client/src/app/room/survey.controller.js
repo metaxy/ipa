@@ -1,6 +1,7 @@
 'use strict';
 export default function RoomSurveyCtrl($stateParams, $interval, $scope, $http, Shout, ApiUrl) {
   this.surveys = [];
+  this.roomName = $stateParams.roomId;
   this.update = () => {
     $http.get(ApiUrl+'/r/'+$stateParams.roomId)
       .success((data) => this.surveys = data.surveys)

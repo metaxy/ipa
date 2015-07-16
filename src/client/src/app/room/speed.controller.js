@@ -25,7 +25,7 @@ export default function SpeedCtrl($http, ApiUrl, $stateParams, $interval, $scope
   }
 
   this.intervalPromise = $interval(this.reload, 5000);
-  $scope.$on('$destroy', () => $interval.cancel(this.reload));
+  $scope.$on('$destroy', () => $interval.cancel(this.intervalPromise));
 
 
 }
