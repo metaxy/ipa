@@ -1,7 +1,7 @@
 <div ng-controller="SpeedCtrl as speedCtrl">
 <md-card ng-if="acl.can('view_tempo')">
 
-  <md-card-content style="height: 300px" >
+  <md-card-content style="height: 300px;padding: 1px 0" >
     <pie-chart style="height: 300px" flex data="speedCtrl.graph" options="speedCtrl.opt"></pie-chart>
   </md-card-content>
 </md-card>
