@@ -14,7 +14,12 @@ cache:
     - $HOME/.nvm
 before_install:
   - npm install -g bower gulp
+<<<<<<< HEAD
   - pip install requests flask flask-sqlalchemy
+=======
+  - sudo apt-get update -qq
+  - sudo apt-get install -y python3 python3-requests python3-flask-sqlalchemy
+>>>>>>> run server
 install:
   - cd src/client && npm install && bower install
 before_script:
