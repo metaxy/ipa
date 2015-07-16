@@ -3,8 +3,8 @@ export default function SpeedCtrl($http, ApiUrl, $stateParams, $interval, $scope
   this.reload = () => {
     $http.get(ApiUrl+'/r/'+$stateParams.roomId+'/t')
       .success((data) => {
-        this.up = data.up;
-        this.down = data.down;
+        this.up = data.up || 0;
+        this.down = data.down || 0;
         this.graph = [
         {label: "Schneller", value: data.up, color: '#76d11b'},
         {label: "Langsamer", value: data.down, color: '#de0000'}];
