@@ -1,5 +1,5 @@
 
 all: ms3.pdf
 
-ms3.pdf: ms3.tex
+%.pdf: %.tex
 	pdflatex $<
