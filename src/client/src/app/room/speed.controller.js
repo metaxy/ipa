@@ -5,11 +5,15 @@ export default function SpeedCtrl($http, ApiUrl, $stateParams, $interval, $scope
       .success((data) => {
         this.up = data.up;
         this.down = data.down;
+        this.graph = [
+        {label: "Schneller", value: data.up, color: '#76d11b'},
+        {label: "Langsamer", value: data.down, color: '#de0000'}];
       })
       .error(() => Shout.error("Konnte die Geschwindigkeit nicht bekommen."));
   }
   this.reload();
 
+  this.opt = {thickness: 20};
 
 
   this.faster = () => {
